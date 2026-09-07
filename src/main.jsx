@@ -200,6 +200,8 @@ function App() {
   const [fullscreenScoreboard, setFullscreenScoreboard] = useState(false);
   const [adminTab, setAdminTab] = useState("publicar");
   const [drawState, setDrawState] = useState(null);
+  const [scheduledMatches, setScheduledMatches] = useState(() => matches.map((match) => ({ ...match, key: `${match.a}-${match.b}` })));
+  const [activeFixtureKey, setActiveFixtureKey] = useState("AMARELO-AZUL");
   const [scoringRule, setScoringRule] = useState(
     "Vitória: 3 pontos • Derrota: 0 pontos • W.O.: -1 ponto",
   );
@@ -258,14 +260,12 @@ function App() {
     setPendingSet(null);
     if (nextSets[pendingSet.winner] === 2 || pendingSet.number === 3) {
       window.alert(`${pendingSet.winner === "a" ? activeMatch.a : activeMatch.b} venceu a partida!`);
-      const nextFixture = drawState?.fixtures?.find((fixture) => `${fixture.a}-${fixture.b}` !== `${activeMatch.a}-${activeMatch.b}` && !fixture.completed);
+      const resultScore = `${nextHistory.map((result) => `${result.a} — ${result.b}`).join(" / ")}`;
+      setScheduledMatches((current) => current.map((fixture) => fixture.key === activeFixtureKey ? { ...fixture, status: "FINALIZADO", score: resultScore } : fixture));
+      setDrawState((current) => current ? { ...current, fixtures: current.fixtures.map((fixture) => fixture.key === activeFixtureKey ? { ...fixture, status: "FINALIZADO", score: resultScore } : fixture) } : current);
+      const nextFixture = drawState?.fixtures?.find((fixture) => fixture.key !== activeFixtureKey && fixture.status !== "FINALIZADO");
       if (nextFixture) {
-        setActiveMatch({ a: nextFixture.a, b: nextFixture.b });
-        setScore({ a: 0, b: 0 });
-        setSets({ a: 0, b: 0 });
-        setSetNumber(1);
-        setSetResults([]);
-        setMatchFinished(false);
+        loadMatch(nextFixture);
       } else {
         setMatchFinished(true);
       }
@@ -275,6 +275,24 @@ function App() {
     setSetNumber((current) => current + 1);
     setScore({ a: 0, b: 0 });
     setServeAdvantage(null);
+  };
+  const loadMatch = (fixture) => {
+    if (!fixture) return;
+    setScheduledMatches((current) => current.map((match) => {
+      if (match.key === activeFixtureKey && match.status === "AO VIVO") return { ...match, status: "A SEGUIR" };
+      if (match.key === fixture.key && match.status !== "FINALIZADO") return { ...match, status: "AO VIVO" };
+      return match;
+    }));
+    setActiveMatch({ a: fixture.a.toUpperCase(), b: fixture.b.toUpperCase() });
+    setActiveFixtureKey(fixture.key);
+    setScore({ a: 0, b: 0 });
+    setSets({ a: 0, b: 0 });
+    setSetNumber(1);
+    setSetResults([]);
+    setPendingSet(null);
+    setResting(false);
+    setMatchFinished(false);
+    setServeAdvantage("a");
   };
   const continueAfterRest = () => {
     setResting(false);
@@ -328,22 +346,27 @@ function App() {
           })),
       ),
     );
+    const generatedFixtures = fixtures.map((fixture, index) => ({
+      ...fixture,
+      key: `${fixture.a}-${fixture.b}`,
+      time: `${String(9 + Math.floor(index / 2)).padStart(2, "0")}:${index % 2 ? "30" : "00"}`,
+      court: `Quadra ${String((index % 2) + 1).padStart(2, "0")}`,
+      category: `GRUPO ${fixture.group}`,
+      status: index === 0 ? "AO VIVO" : "A SEGUIR",
+      score: null,
+    }));
     setDrawState({
       groups,
-      fixtures,
+      fixtures: generatedFixtures,
       generatedAt: new Date().toLocaleTimeString("pt-BR", {
         hour: "2-digit",
         minute: "2-digit",
       }),
     });
-    const firstFixture = fixtures[0];
+    setScheduledMatches(generatedFixtures);
+    const firstFixture = generatedFixtures[0];
     if (firstFixture) {
-      setActiveMatch({ a: firstFixture.a.toUpperCase(), b: firstFixture.b.toUpperCase() });
-      setScore({ a: 0, b: 0 });
-      setSets({ a: 0, b: 0 });
-      setSetNumber(1);
-      setSetResults([]);
-      setMatchFinished(false);
+      loadMatch(firstFixture);
     }
   };
   const editScoringRule = () => {
@@ -485,7 +508,7 @@ function App() {
             <div className="date-switcher"><button>‹</button><span><small>HOJE</small> SÁB, 18 OUT</span><button>›</button></div>
           </div>
           <div className="match-list">
-            {matches.map((match, index) => (
+            {scheduledMatches.map((match, index) => (
               <article className="match-row" key={match.time}>
                 <div className="match-time">
                   <strong>{match.time}</strong>
@@ -509,7 +532,7 @@ function App() {
                   className={`match-status ${match.status === "AO VIVO" ? "is-live" : ""}`}
                 >
                   {match.status}
-                  {index === 0 ? (
+                  {match.key === activeFixtureKey && !match.score ? (
                     <strong>
                       {score.a} — {score.b}
                     </strong>
@@ -519,7 +542,7 @@ function App() {
                 </div>
                 <a
                   className="row-arrow"
-                  href={index === 0 ? "#sumula" : "#jogos"}
+                  href="#sumula"
                   aria-label={`Detalhes de ${match.a}`}
                 >
                   <ArrowUpRight size={18} />
@@ -557,6 +580,12 @@ function App() {
                 {fullscreenScoreboard ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
                 <span>{fullscreenScoreboard ? "Sair da tela cheia" : "Tela cheia"}</span>
               </button>
+            </div>
+            <div className="match-loader">
+              <div><strong>CONTROLE DO MESÁRIO</strong><label htmlFor="match-select">SELECIONAR PRÓXIMO JOGO</label></div>
+              <select id="match-select" value={activeFixtureKey} onChange={(event) => loadMatch(scheduledMatches.find((match) => match.key === event.target.value))}>
+                {scheduledMatches.map((match) => <option value={match.key} key={match.key} disabled={match.status === "FINALIZADO"}>{match.time || "--:--"} • {match.a} x {match.b} • {match.status}</option>)}
+              </select>
             </div>
             <div className="scoreboard">
               <div className="scoreboard-team team-a">
@@ -863,7 +892,7 @@ function App() {
         </div>
         <p>Vôlei de areia com alma brasileira.</p>
         <div className="footer-meta">
-          © 2026 Aldeia da Serra Open <span>•</span> Luziânia, GO
+          Copyright © 2026 Agis Maciel <span>•</span> Aldeia da Serra Open <span>•</span> Luziânia, GO
         </div>
       </footer>
 
