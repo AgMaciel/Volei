@@ -179,6 +179,7 @@ const musicTracks = [
 function App() {
   const [slide, setSlide] = useState(0);
   const [adminOpen, setAdminOpen] = useState(false);
+  const [adminView, setAdminView] = useState("publish");
   const [drawOpen, setDrawOpen] = useState(false);
   const [login, setLogin] = useState(false);
   const [posts, setPosts] = useState(initialPosts);
@@ -398,6 +399,7 @@ function App() {
     ]);
     setSelectedFile(null);
     setCaption("");
+    setAdminView("photos");
     if (fileInput.current) fileInput.current.value = "";
   };
 
@@ -419,7 +421,7 @@ function App() {
           <a href="#galeria">Galeria</a>
         </nav>
         <div className="admin-actions">
-          <button className="admin-trigger" onClick={() => setAdminOpen(true)}>
+          <button className="admin-trigger" onClick={() => { setAdminView("publish"); setAdminOpen(true); }}>
             <Camera size={16} /> Publicar
           </button>
           <button
@@ -1045,6 +1047,15 @@ function App() {
                   Voltar para publicação
                 </button>
               </>
+            ) : adminView === "photos" ? (
+              <>
+                <button className="close-modal" onClick={() => setAdminOpen(false)}><X size={20} /></button>
+                <div className="admin-tabs"><button onClick={() => setAdminView("publish")}>PUBLICAR FOTO</button><button className="active">FOTOS PUBLICADAS</button></div>
+                <p className="section-kicker">ÁLBUM DO EVENTO</p>
+                <h2>Fotos<br /><i>publicadas.</i></h2>
+                <div className="admin-photo-grid">{posts.map((post, index) => <article key={`${post.image}-${index}`}><img src={post.image} alt="Foto publicada do evento" /><div><strong>{post.label}</strong><span>{post.text}</span></div></article>)}</div>
+                <button className="button button-dark" onClick={() => setAdminView("publish")}><Camera size={17} /> Publicar nova foto</button>
+              </>
             ) : (
               <>
                 <button
@@ -1053,6 +1064,7 @@ function App() {
                 >
                   <X size={20} />
                 </button>
+                <div className="admin-tabs"><button className="active">PUBLICAR FOTO</button><button onClick={() => setAdminView("photos")}>FOTOS PUBLICADAS</button></div>
                 <p className="section-kicker">PUBLICAÇÃO RÁPIDA</p>
                 <h2>
                   Mostre o que
