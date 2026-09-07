@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowUpRight,
@@ -177,7 +177,10 @@ const musicTracks = [
 ];
 
 function App() {
+  const storageKey = "aldeia-serra-open-tournament-v1";
+  const hydratedRef = useRef(false);
   const [slide, setSlide] = useState(0);
+  const [galleryIndex, setGalleryIndex] = useState(0);
   const [adminOpen, setAdminOpen] = useState(false);
   const [adminView, setAdminView] = useState("publish");
   const [drawOpen, setDrawOpen] = useState(false);
@@ -214,7 +217,57 @@ function App() {
   const musicFrameRef = useRef(null);
   const effectAudioRef = useRef(null);
   const [effectPlaying, setEffectPlaying] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const fileInput = useRef(null);
+
+  useEffect(() => {
+    if (posts.length < 2) return undefined;
+    const timer = window.setInterval(() => {
+      setGalleryIndex((current) => (current + 1) % posts.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [posts.length]);
+
+  const visiblePosts = Array.from({ length: Math.min(3, posts.length) }, (_, offset) => posts[(galleryIndex + offset) % posts.length]);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+      if (saved) {
+        if (saved.score) setScore(saved.score);
+        if (saved.sets) setSets(saved.sets);
+        if (saved.setNumber) setSetNumber(saved.setNumber);
+        if (saved.setResults) setSetResults(saved.setResults);
+        if (saved.matchFinished !== undefined) setMatchFinished(saved.matchFinished);
+        if (saved.pendingSet) setPendingSet(saved.pendingSet);
+        if (saved.resting !== undefined) setResting(saved.resting);
+        if (saved.activeMatch) setActiveMatch(saved.activeMatch);
+        if (saved.serveAdvantage !== undefined) setServeAdvantage(saved.serveAdvantage);
+        if (saved.rallies !== undefined) setRallies(saved.rallies);
+        if (saved.drawState) setDrawState(saved.drawState);
+        if (saved.scheduledMatches) setScheduledMatches(saved.scheduledMatches);
+        if (saved.activeFixtureKey) setActiveFixtureKey(saved.activeFixtureKey);
+        if (saved.scoringRule) {
+          setScoringRule(saved.scoringRule);
+          setDraftScoringRule(saved.scoringRule);
+        }
+      }
+    } catch (error) {
+      console.warn("Não foi possível restaurar a súmula salva.", error);
+    } finally {
+      hydratedRef.current = true;
+      setIsHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydratedRef.current || !isHydrated) return;
+    localStorage.setItem(storageKey, JSON.stringify({
+      score, sets, setNumber, setResults, matchFinished, pendingSet, resting,
+      activeMatch, serveAdvantage, rallies, drawState, scheduledMatches,
+      activeFixtureKey, scoringRule,
+    }));
+  }, [isHydrated, score, sets, setNumber, setResults, matchFinished, pendingSet, resting, activeMatch, serveAdvantage, rallies, drawState, scheduledMatches, activeFixtureKey, scoringRule]);
 
   const nextSlide = () => setSlide((current) => (current + 1) % slides.length);
   const previousSlide = () =>
@@ -507,7 +560,7 @@ function App() {
         <section className="section schedule-section" id="jogos">
           <div className="section-heading">
             <div><p className="section-kicker">TABELA DE JOGOS</p><h2>O próximo ponto<br /><i>começa agora.</i></h2></div>
-            <div className="date-switcher"><button>‹</button><span><small>HOJE</small> SÁB, 18 OUT</span><button>›</button></div>
+              <div className="date-switcher"><button>‹</button><span><small>DATA DO TORNEIO</small> 18 OUT 2026</span><button>›</button></div>
           </div>
           <div className="match-list">
             {scheduledMatches.map((match, index) => (
@@ -859,11 +912,12 @@ function App() {
               @arenapraiaopen <ArrowUpRight size={16} />
             </a>
           </div>
-          <div className="post-grid">
-            {posts.map((post, index) => (
+          <div className="gallery-carousel">
+            <div className="post-grid">
+            {visiblePosts.map((post, index) => (
               <article
                 className={`post-card post-${index}`}
-                key={`${post.image}-${index}`}
+                key={`${post.image}-${galleryIndex}-${index}`}
               >
                 <img src={post.image} alt="Momento do torneio na areia" />
                 <div className="post-overlay">
@@ -882,6 +936,8 @@ function App() {
                 <small>— LUCAS MENDES, ATLETA</small>
               </div>
             </article>
+            </div>
+            <div className="gallery-controls"><button onClick={() => setGalleryIndex((current) => (current - 1 + posts.length) % posts.length)} aria-label="Fotos anteriores"><ChevronLeft size={17} /></button><span>{String((galleryIndex % posts.length) + 1).padStart(2, "0")} / {String(posts.length).padStart(2, "0")}</span><button onClick={() => setGalleryIndex((current) => (current + 1) % posts.length)} aria-label="Próximas fotos"><ChevronRight size={17} /></button></div>
           </div>
         </section>
       </main>
