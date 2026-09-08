@@ -975,7 +975,7 @@ function App() {
             <div>
               <p className="section-kicker">DIÁRIO DA ARENA</p>
               <h2>
-                Visão da <i>Areia</i>
+                Visão da <i>Arena</i>
               </h2>
             </div>
             <a className="under-link" href="#galeria">
