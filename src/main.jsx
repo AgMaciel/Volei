@@ -6,6 +6,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Download,
+  FileText,
+  History,
   MapPin,
   Menu,
   Minus,
@@ -192,6 +195,8 @@ function App() {
   const [sets, setSets] = useState({ a: 0, b: 0 });
   const [setNumber, setSetNumber] = useState(1);
   const [setResults, setSetResults] = useState([]);
+  const [matchRecords, setMatchRecords] = useState([]);
+  const [recordsOpen, setRecordsOpen] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
   const [pendingSet, setPendingSet] = useState(null);
   const [resting, setResting] = useState(false);
@@ -214,6 +219,7 @@ function App() {
   );
   const [musicIndex, setMusicIndex] = useState(0);
   const [musicPlaying, setMusicPlaying] = useState(false);
+  const [musicReady, setMusicReady] = useState(false);
   const musicFrameRef = useRef(null);
   const effectAudioRef = useRef(null);
   const [effectPlaying, setEffectPlaying] = useState(false);
@@ -238,12 +244,14 @@ function App() {
         if (saved.sets) setSets(saved.sets);
         if (saved.setNumber) setSetNumber(saved.setNumber);
         if (saved.setResults) setSetResults(saved.setResults);
+        if (saved.matchRecords) setMatchRecords(saved.matchRecords);
         if (saved.matchFinished !== undefined) setMatchFinished(saved.matchFinished);
         if (saved.pendingSet) setPendingSet(saved.pendingSet);
         if (saved.resting !== undefined) setResting(saved.resting);
         if (saved.activeMatch) setActiveMatch(saved.activeMatch);
         if (saved.serveAdvantage !== undefined) setServeAdvantage(saved.serveAdvantage);
         if (saved.rallies !== undefined) setRallies(saved.rallies);
+        if (saved.posts) setPosts(saved.posts);
         if (saved.drawState) setDrawState(saved.drawState);
         if (saved.scheduledMatches) setScheduledMatches(saved.scheduledMatches);
         if (saved.activeFixtureKey) setActiveFixtureKey(saved.activeFixtureKey);
@@ -263,11 +271,15 @@ function App() {
   useEffect(() => {
     if (!hydratedRef.current || !isHydrated) return;
     localStorage.setItem(storageKey, JSON.stringify({
-      score, sets, setNumber, setResults, matchFinished, pendingSet, resting,
+      score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting,
+      posts,
       activeMatch, serveAdvantage, rallies, drawState, scheduledMatches,
       activeFixtureKey, scoringRule,
     }));
-  }, [isHydrated, score, sets, setNumber, setResults, matchFinished, pendingSet, resting, activeMatch, serveAdvantage, rallies, drawState, scheduledMatches, activeFixtureKey, scoringRule]);
+  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, posts, activeMatch, serveAdvantage, rallies, drawState, scheduledMatches, activeFixtureKey, scoringRule]);
+
+  const activeTeamA = teams.find((team) => team.name.toUpperCase() === activeMatch.a) || teams[0];
+  const activeTeamB = teams.find((team) => team.name.toUpperCase() === activeMatch.b) || teams[1];
 
   const nextSlide = () => setSlide((current) => (current + 1) % slides.length);
   const previousSlide = () =>
@@ -313,6 +325,25 @@ function App() {
     setSetResults(nextHistory);
     setPendingSet(null);
     if (nextSets[pendingSet.winner] === 2 || pendingSet.number === 3) {
+      const winner = pendingSet.winner === "a" ? activeMatch.a : activeMatch.b;
+      const fixture = scheduledMatches.find((match) => match.key === activeFixtureKey);
+      setMatchRecords((current) => [
+        {
+          id: `${activeFixtureKey}-${Date.now()}`,
+          recordedAt: new Date().toISOString(),
+          fixture: activeFixtureKey,
+          court: fixture?.court || "Quadra 01",
+          category: fixture?.category || "FASE DE GRUPOS",
+          teamA: activeMatch.a,
+          teamB: activeMatch.b,
+          colorA: activeTeamA.color,
+          colorB: activeTeamB.color,
+          sets: nextHistory,
+          finalSets: nextSets,
+          winner,
+        },
+        ...current,
+      ]);
       window.alert(`${pendingSet.winner === "a" ? activeMatch.a : activeMatch.b} venceu a partida!`);
       const resultScore = `${nextHistory.map((result) => `${result.a} — ${result.b}`).join(" / ")}`;
       setScheduledMatches((current) => current.map((fixture) => fixture.key === activeFixtureKey ? { ...fixture, status: "FINALIZADO", score: resultScore } : fixture));
@@ -329,6 +360,30 @@ function App() {
     setSetNumber((current) => current + 1);
     setScore({ a: 0, b: 0 });
     setServeAdvantage(null);
+  };
+  const downloadRecords = (format) => {
+    if (!matchRecords.length) return;
+    const filename = `sumulas-aldeia-serra-open.${format}`;
+    const content = format === "json"
+      ? JSON.stringify(matchRecords, null, 2)
+      : [
+        "Data;Jogo;Quadra;Categoria;Equipe A;Equipe B;Sets;Vencedor",
+        ...matchRecords.map((record) => [
+          new Date(record.recordedAt).toLocaleString("pt-BR"),
+          record.fixture,
+          record.court,
+          record.category,
+          record.teamA,
+          record.teamB,
+          record.sets.map((set) => `${set.a}x${set.b}`).join(" / "),
+          record.winner,
+        ].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(";")),
+      ].join("\n");
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([content], { type: format === "json" ? "application/json" : "text/csv;charset=utf-8" }));
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
   };
   const loadMatch = (fixture) => {
     if (!fixture) return;
@@ -359,16 +414,18 @@ function App() {
     );
   };
   const toggleMusic = () => {
+    if (!musicReady) return;
     sendMusicCommand(musicPlaying ? "pauseVideo" : "playVideo");
     setMusicPlaying((current) => !current);
   };
   const changeMusic = (event) => {
     setMusicIndex(Number(event.target.value));
     setMusicPlaying(false);
+    setMusicReady(false);
   };
   const playArenaEffect = (effect) => {
     effectAudioRef.current?.pause();
-    const audio = new Audio(`/references/${effect}.mp3`);
+    const audio = new Audio(`${import.meta.env.BASE_URL}references/${effect}.mp3`);
     effectAudioRef.current = audio;
     audio.volume = 1;
     audio.onended = () => setEffectPlaying(false);
@@ -442,18 +499,22 @@ function App() {
 
   const publishPost = () => {
     if (!selectedFile) return;
-    setPosts((current) => [
-      {
-        image: selectedFile.url,
-        label: "PUBLICADO AGORA",
-        text: caption || "Novo registro direto do Aldeia da Serra Open.",
-      },
-      ...current,
-    ]);
-    setSelectedFile(null);
-    setCaption("");
-    setAdminView("photos");
-    if (fileInput.current) fileInput.current.value = "";
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPosts((current) => [
+        {
+          image: reader.result,
+          label: "PUBLICADO AGORA",
+          text: caption || "Novo registro direto do Aldeia da Serra Open.",
+        },
+        ...current,
+      ]);
+      setSelectedFile(null);
+      setCaption("");
+      setAdminView("photos");
+      if (fileInput.current) fileInput.current.value = "";
+    };
+    reader.readAsDataURL(selectedFile.file);
   };
 
   return (
@@ -560,7 +621,7 @@ function App() {
         <section className="section schedule-section" id="jogos">
           <div className="section-heading">
             <div><p className="section-kicker">TABELA DE JOGOS</p><h2>O próximo ponto<br /><i>começa agora.</i></h2></div>
-              <div className="date-switcher"><button>‹</button><span><small>DATA DO TORNEIO</small> 18 OUT 2026</span><button>›</button></div>
+              <div className="date-switcher"><button>‹</button><span><small>DATA DO TORNEIO</small> 10 OUT 2026</span><button>›</button></div>
           </div>
           <div className="match-list">
             {scheduledMatches.map((match, index) => (
@@ -628,6 +689,9 @@ function App() {
                 <span className="live-dot" /> AO VIVO{" "}
                 <small>QUADRA 01 • FASE DE GRUPOS</small>
               </div>
+              <button className="records-button" onClick={() => setRecordsOpen(true)}>
+                <History size={16} /> Histórico ({matchRecords.length})
+              </button>
               <button
                 className="fullscreen-button"
                 onClick={() => setFullscreenScoreboard((current) => !current)}
@@ -646,14 +710,14 @@ function App() {
               <div className="scoreboard-team team-a">
                 <span
                   className="team-chip"
-                  style={{ background: teams[0].color, color: "#182536" }}
+                  style={{ background: activeTeamA.color, color: activeTeamA.name === "Preto" ? "white" : "#182536" }}
                 >
                   A
                 </span>
                 <div>
                   <small>EQUIPE {activeMatch.a}</small>
                   <strong>{activeMatch.a}</strong>
-                  <p>{teams.find((team) => team.name.toUpperCase() === activeMatch.a)?.athletes.join(" • ")}</p>
+                  <p>{activeTeamA.athletes.join(" • ")}</p>
                 </div>
                 <button
                   className={`serve-indicator ${serveAdvantage === "a" ? "is-serving" : ""}`}
@@ -684,11 +748,11 @@ function App() {
                 <div>
                   <small>EQUIPE {activeMatch.b}</small>
                   <strong>{activeMatch.b}</strong>
-                  <p>{teams.find((team) => team.name.toUpperCase() === activeMatch.b)?.athletes.join(" • ")}</p>
+                  <p>{activeTeamB.athletes.join(" • ")}</p>
                 </div>
                 <span
                   className="team-chip"
-                  style={{ background: teams[1].color }}
+                  style={{ background: activeTeamB.color, color: activeTeamB.name === "Preto" ? "white" : "#182536" }}
                 >
                   B
                 </span>
@@ -710,7 +774,8 @@ function App() {
                   <Minus size={16} />
                 </button>
                 <button
-                  className="score-point yellow"
+                  className="score-point"
+                  style={{ background: activeTeamA.color, color: activeTeamA.name === "Preto" ? "white" : "#182536" }}
                   onClick={() => addPoint("a")}
                 >
                   PONTO {activeMatch.a} <Plus size={16} />
@@ -723,7 +788,11 @@ function App() {
                 >
                   <Minus size={16} />
                 </button>
-                <button className="score-point blue" onClick={() => addPoint("b")}>
+                <button
+                  className="score-point"
+                  style={{ background: activeTeamB.color, color: activeTeamB.name === "Preto" ? "white" : "#182536" }}
+                  onClick={() => addPoint("b")}
+                >
                   PONTO {activeMatch.b} <Plus size={16} />
                 </button>
               </div>
@@ -747,7 +816,7 @@ function App() {
                 <select value={musicIndex} onChange={changeMusic} aria-label="Selecionar música">
                   {musicTracks.map((track, index) => <option value={index} key={track.id}>{track.name}</option>)}
                 </select>
-                <button className="music-pause" onClick={toggleMusic}>{musicPlaying ? "Pausar" : "Tocar"}</button>
+                <button className="music-pause" onClick={toggleMusic} disabled={!musicReady}>{musicPlaying ? "Pausar" : "Tocar"}</button>
                 <button className="effect-button monster" onClick={() => playArenaEffect("monster-block")}>MONSTER BLOCK</button>
                 <button className="effect-button ace" onClick={() => playArenaEffect("ace-ace-volleyball")}>ACE</button>
                 <button className="effect-pause" onClick={toggleEffectAudio} disabled={!effectAudioRef.current}>{effectPlaying ? "Pausar efeitos" : "Retomar efeitos"}</button>
@@ -756,7 +825,8 @@ function App() {
                 ref={musicFrameRef}
                 className="music-frame"
                 title="Player de música da arena"
-                src={`https://www.youtube.com/embed/${musicTracks[musicIndex].id}?enablejsapi=1&controls=0&loop=1&playlist=${musicTracks[musicIndex].id}`}
+                src={`https://www.youtube.com/embed/${musicTracks[musicIndex].id}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&playsinline=1&controls=0&loop=1&playlist=${musicTracks[musicIndex].id}`}
+                onLoad={() => setMusicReady(true)}
                 allow="autoplay; encrypted-media"
               />
             </div>
@@ -905,7 +975,7 @@ function App() {
             <div>
               <p className="section-kicker">DIÁRIO DA ARENA</p>
               <h2>
-                Visto da <i>areia.</i>
+                Visão da <i>Areia</i>
               </h2>
             </div>
             <a className="under-link" href="#galeria">
@@ -1087,7 +1157,7 @@ function App() {
                 </h2>
                 <label>
                   E-mail
-                  <input type="email" placeholder="admin@arenapraia.com" />
+                  <input type="email" placeholder="agismaciel@gmail.com" />
                 </label>
                 <label>
                   Senha
@@ -1187,6 +1257,46 @@ function App() {
                   Entrar como administrador <ArrowUpRight size={16} />
                 </button>
               </>
+            )}
+          </section>
+        </div>
+      )}
+
+      {recordsOpen && (
+        <div className="modal-backdrop" onClick={() => setRecordsOpen(false)}>
+          <section className="records-modal" onClick={(event) => event.stopPropagation()}>
+            <button className="close-modal" onClick={() => setRecordsOpen(false)} aria-label="Fechar histórico">
+              <X size={20} />
+            </button>
+            <p className="section-kicker">ARQUIVO DA ARENA</p>
+            <h2>Histórico<br /><i>das súmulas.</i></h2>
+            <div className="records-actions">
+              <button className="button button-dark" onClick={() => downloadRecords("json")} disabled={!matchRecords.length}>
+                <Download size={16} /> Baixar JSON
+              </button>
+              <button className="button button-outline" onClick={() => downloadRecords("csv")} disabled={!matchRecords.length}>
+                <FileText size={16} /> Baixar CSV
+              </button>
+            </div>
+            {matchRecords.length ? (
+              <div className="records-list">
+                {matchRecords.map((record) => (
+                  <article className="record-card" key={record.id}>
+                    <div className="record-card-head">
+                      <div>
+                        <strong>{record.teamA} <span>×</span> {record.teamB}</strong>
+                        <small>{new Date(record.recordedAt).toLocaleString("pt-BR")} • {record.court}</small>
+                      </div>
+                      <b>{record.winner}</b>
+                    </div>
+                    <div className="record-card-sets">
+                      {record.sets.map((set) => <span key={set.number}>SET {set.number} <b>{set.a} — {set.b}</b></span>)}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="records-empty">Nenhuma partida encerrada foi registrada ainda.</div>
             )}
           </section>
         </div>
