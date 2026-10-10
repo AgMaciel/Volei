@@ -264,12 +264,15 @@ const createTournamentSchedule = (registeredTeams, matchRecords, activeFixtureKe
   return { matches, standings };
 };
 
-const winnerAtScore = (currentScore) => {
-  if (currentScore.a >= 25 || currentScore.b >= 25) {
-    return currentScore.a > currentScore.b ? "a" : "b";
+const getSetTarget = (setNumber = 1) => (setNumber === 3 ? 15 : 21);
+
+const winnerAtScore = (currentScore, setNumber = 1) => {
+  const target = getSetTarget(setNumber);
+  if (currentScore.a >= target || currentScore.b >= target) {
+    if (Math.abs(currentScore.a - currentScore.b) >= 2) {
+      return currentScore.a > currentScore.b ? "a" : "b";
+    }
   }
-  if (currentScore.a >= 21 && currentScore.a - currentScore.b >= 2) return "a";
-  if (currentScore.b >= 21 && currentScore.b - currentScore.a >= 2) return "b";
   return null;
 };
 
@@ -301,10 +304,9 @@ const initialUsers = [
 const initialRegulation = `TORNEIO DE VÔLEI DE AREIA 4 x 4 — CONDOMÍNIO RESIDENCIAL ALDEIA DA SERRA
 
 FORMATO DA PARTIDA
-• Cada partida será disputada em um único set, com meta de 21 pontos e limite de 25.
-• Ao atingir 21 pontos com 2 de vantagem, o mesário confirma com a mesa se a partida deve ser encerrada. Se continuar, a primeira equipe a alcançar 25 pontos vence.
-• Cada equipe tem direito a um pedido de tempo por partida.
-• Cada equipe pode inscrever até 4 titulares e 2 reservas, conforme a súmula adaptada.
+• Os jogos serão disputados em melhor de 3 sets, sendo dois sets de 21 pontos e o set de desempate de 15.
+• Em cada set, a vitória exige 2 pontos de diferença; o desempate é jogado até 15 pontos, também com vantagem mínima de 2.
+• Cada equipe tem direito a um pedido de tempo por set e pode inscrever até 4 titulares e 2 reservas, conforme a súmula adaptada.
 
 COMPETIÇÃO
 • A fase classificatória será disputada em duas chaves de cinco equipes, seguindo a tabela oficial, sem sorteio.
@@ -313,7 +315,7 @@ COMPETIÇÃO
 • As semifinais são preenchidas automaticamente após o registro dos 20 resultados da fase de chaves.
 
 CONDUTA E ARBITRAGEM
-• A decisão da arbitragem prevalece. O mesário registra os pontos, o set único, os tempos, sanções e ocorrências.
+• A decisão da arbitragem prevalece. O mesário registra os pontos, os sets, os tempos, sanções e ocorrências.
 • As equipes devem estar prontas no horário. Atrasos e ausência podem resultar em W.O., conforme decisão da organização.
 • Casos omissos serão resolvidos pela organização do torneio.
 
@@ -397,7 +399,7 @@ function App() {
 
   const [simConfig, setSimConfig] = useState({
     pontuacaoBase: 21,
-    teto: 25,
+    teto: 21,
     tempoAlmoco: 120,
     numeroJogos: 22,
     simulacoes: 10000,
@@ -602,23 +604,34 @@ function App() {
   const previousSlide = () =>
     setSlide((current) => (current - 1 + slides.length) % slides.length);
   const addPoint = (team) => {
-    if (!matchStarted || matchFinished || resting || score.a >= 25 || score.b >= 25) return;
+    if (!matchStarted || matchFinished || resting || winnerAtScore(score, setNumber)) return;
     const nextScore = { ...score, [team]: score[team] + 1 };
-    const winner = winnerAtScore(nextScore);
+    const winner = winnerAtScore(nextScore, setNumber);
     setScore(nextScore);
     setServeAdvantage(team);
     setRallies((current) => current + 1);
-    if (winner && (!finishPromptDismissed || nextScore.a >= 25 || nextScore.b >= 25)) {
-      setPendingSet({ number: 1, winner, a: nextScore.a, b: nextScore.b });
+    if (winner) {
+      const nextSetResults = [...setResults, { number: setNumber, winner, a: nextScore.a, b: nextScore.b }];
+      const nextSets = { ...sets, [winner]: (sets[winner] || 0) + 1 };
+      setSetResults(nextSetResults);
+      setSets(nextSets);
+      setPendingSet({ number: setNumber, winner, a: nextScore.a, b: nextScore.b });
+      if (nextSets.a >= 2 || nextSets.b >= 2) {
+        setScore({ a: 0, b: 0 });
+      } else {
+        setSetNumber((current) => current + 1);
+        setScore({ a: 0, b: 0 });
+      }
+      setFinishPromptDismissed(false);
     } else {
       setPendingSet(null);
-      if (!winner) setFinishPromptDismissed(false);
+      setFinishPromptDismissed(false);
     }
   };
   const removePoint = (team) => {
     if (!matchStarted || matchFinished || resting) return;
     const nextScore = { ...score, [team]: Math.max(0, score[team] - 1) };
-    const winner = winnerAtScore(nextScore);
+    const winner = winnerAtScore(nextScore, setNumber);
     setScore(nextScore);
     if (!winner) {
       setPendingSet(null);
@@ -640,6 +653,14 @@ function App() {
     const finishedAt = new Date().toISOString();
     const winner = pendingSet.winner === "a" ? activeMatch.a : activeMatch.b;
     const fixture = scheduledMatches.find((match) => match.key === activeFixtureKey);
+    const completedSets = [...setResults];
+    if (!completedSets.some((setResult) => setResult.number === pendingSet.number)) {
+      completedSets.push({ number: pendingSet.number, winner: pendingSet.winner, a: pendingSet.a, b: pendingSet.b });
+    }
+    const finalSets = {
+      a: completedSets.filter((setResult) => setResult.winner === "a").length,
+      b: completedSets.filter((setResult) => setResult.winner === "b").length,
+    };
     const record = {
       id: `${activeFixtureKey}-${Date.now()}`,
       fixture: activeFixtureKey,
@@ -656,8 +677,8 @@ function App() {
       teamB: activeMatch.b,
       colorA: activeTeamA.color,
       colorB: activeTeamB.color,
-      sets: [{ number: 1, winner: pendingSet.winner, a: pendingSet.a, b: pendingSet.b }],
-      finalSets: { a: pendingSet.winner === "a" ? 1 : 0, b: pendingSet.winner === "b" ? 1 : 0 },
+      sets: completedSets,
+      finalSets,
       winner,
       timeoutsUsed,
     };
@@ -679,9 +700,9 @@ function App() {
           court: fixture?.court || sheet.court,
           sets: {
             ...sheet.sets,
-            1: {
-              ...sheet.sets[1],
-              start: matchStartedAt ? new Date(matchStartedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : sheet.sets[1]?.start || "",
+            [pendingSet.number]: {
+              ...sheet.sets[pendingSet.number],
+              start: matchStartedAt ? new Date(matchStartedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : sheet.sets[pendingSet.number]?.start || "",
               end: new Date(finishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
               scoreA: String(pendingSet.a),
               scoreB: String(pendingSet.b),
@@ -691,8 +712,8 @@ function App() {
         },
       };
     });
-    setSets(record.finalSets);
-    setSetResults(record.sets);
+    setSets(finalSets);
+    setSetResults(completedSets);
     setPendingSet(null);
     setMatchFinished(true);
     setMatchStarted(false);
@@ -1276,15 +1297,15 @@ function App() {
               </div>
               <div className="scoreboard-score">
                 <div className="set-score">
-                  <span>SET ÚNICO · META 21 · LIMITE 25</span>
-                  {matchFinished && <b>{sets.a ? activeMatch.a : activeMatch.b} VENCEU</b>}
+                  <span>MELHOR DE 3 SETS • 2X21 • DESEMPATE 15</span>
+                  {matchFinished && <b>{sets.a >= 2 ? activeMatch.a : activeMatch.b} VENCEU</b>}
                 </div>
                 <div className="point-score">
                   <strong>{score.a}</strong>
                   <span>:</span>
                   <strong>{score.b}</strong>
                 </div>
-                <small>{!matchStarted ? "AGUARDANDO INÍCIO" : matchFinished ? "PARTIDA ENCERRADA" : "SET ÚNICO"}</small>
+                <small>{!matchStarted ? "AGUARDANDO INÍCIO" : matchFinished ? "PARTIDA ENCERRADA" : `SET ${setNumber}`}</small>
                 <div className="set-history">
                   {setResults.map((result) => <span key={result.number}>RESULTADO: <b>{result.a} × {result.b}</b></span>)}
                 </div>
@@ -1324,7 +1345,7 @@ function App() {
                   className="score-point"
                   style={{ background: activeTeamA.color, color: activeTeamA.name === "Preto" ? "white" : "#182536" }}
                   onClick={() => addPoint("a")}
-                  disabled={!matchStarted || matchFinished || resting || score.a >= 25 || score.b >= 25}
+                  disabled={!matchStarted || matchFinished || resting || Boolean(winnerAtScore(score, setNumber))}
                 >
                   PONTO {activeMatch.a} <Plus size={16} />
                 </button>
@@ -1341,7 +1362,7 @@ function App() {
                   className="score-point"
                   style={{ background: activeTeamB.color, color: activeTeamB.name === "Preto" ? "white" : "#182536" }}
                   onClick={() => addPoint("b")}
-                  disabled={!matchStarted || matchFinished || resting || score.a >= 25 || score.b >= 25}
+                  disabled={!matchStarted || matchFinished || resting || Boolean(winnerAtScore(score, setNumber))}
                 >
                   PONTO {activeMatch.b} <Plus size={16} />
                 </button>
@@ -1391,9 +1412,9 @@ function App() {
               {pendingSet && (
                 <div className="finish-confirmation" role="status">
                   <strong>{activeMatch[pendingSet.winner]} atingiu a condição de vitória ({pendingSet.a} — {pendingSet.b}).</strong>
-                  <span>{pendingSet.a >= 25 || pendingSet.b >= 25 ? "O limite de 25 pontos foi alcançado." : "Confirma o encerramento da partida? Se não, o jogo continua."}</span>
+                  <span>Confirma o encerramento da partida? Se não, o jogo continua.</span>
                   <button className="button button-yellow" onClick={confirmMatchFinish}>Confirmar encerramento</button>
-                  {pendingSet.a < 25 && pendingSet.b < 25 && <button className="button button-outline" onClick={continueMatch}>Continuar partida</button>}
+                  {pendingSet.a < getSetTarget(pendingSet.number) && pendingSet.b < getSetTarget(pendingSet.number) && <button className="button button-outline" onClick={continueMatch}>Continuar partida</button>}
                 </div>
               )}
               {resting && (
@@ -1729,9 +1750,9 @@ function App() {
                   <label>Capitão {activeMatch.b}<input value={currentSheet.captainB} onChange={(event) => updateSheetField("captainB", event.target.value)} /></label>
                   <label>Primeiro saque<select value={currentSheet.firstServe} onChange={(event) => updateSheetField("firstServe", event.target.value)}><option value="">Selecione</option><option value="a">{activeMatch.a}</option><option value="b">{activeMatch.b}</option></select></label>
                 </div>
-                <div className="sheet-set-list"><h4>CONTROLE DO SET ÚNICO · META 21 · LIMITE 25</h4>{[1].map((setIndex) => {
+                <div className="sheet-set-list"><h4>CONTROLE DOS SETS • 2X21 • DESEMPATE 15</h4>{[1, 2, 3].map((setIndex) => {
                   const set = currentSheet.sets[setIndex] || {};
-                  return <fieldset className="sheet-set" key={setIndex}><legend>Set único</legend><label>Início<input type="time" value={set.start || ""} onChange={(event) => updateSheetSet(setIndex, "start", event.target.value)} /></label><label>Término<input type="time" value={set.end || ""} onChange={(event) => updateSheetSet(setIndex, "end", event.target.value)} /></label><label>{activeMatch.a}<input type="number" min="0" max="25" value={set.scoreA ?? ""} onChange={(event) => updateSheetSet(setIndex, "scoreA", event.target.value)} /></label><label>{activeMatch.b}<input type="number" min="0" max="25" value={set.scoreB ?? ""} onChange={(event) => updateSheetSet(setIndex, "scoreB", event.target.value)} /></label><label>Tempos / ocorrências<input value={set.events || ""} onChange={(event) => updateSheetSet(setIndex, "events", event.target.value)} placeholder="Ex.: tempo da equipe A; ocorrência" /></label><button type="button" onClick={() => copyLiveScoreToSheet(setIndex)}>Usar placar ao vivo</button></fieldset>;
+                  return <fieldset className="sheet-set" key={setIndex}><legend>{setIndex === 3 ? "3º set" : `Set ${setIndex}`}</legend><label>Início<input type="time" value={set.start || ""} onChange={(event) => updateSheetSet(setIndex, "start", event.target.value)} /></label><label>Término<input type="time" value={set.end || ""} onChange={(event) => updateSheetSet(setIndex, "end", event.target.value)} /></label><label>{activeMatch.a}<input type="number" min="0" max="30" value={set.scoreA ?? ""} onChange={(event) => updateSheetSet(setIndex, "scoreA", event.target.value)} /></label><label>{activeMatch.b}<input type="number" min="0" max="30" value={set.scoreB ?? ""} onChange={(event) => updateSheetSet(setIndex, "scoreB", event.target.value)} /></label><label>Tempos / ocorrências<input value={set.events || ""} onChange={(event) => updateSheetSet(setIndex, "events", event.target.value)} placeholder="Ex.: tempo da equipe A; ocorrência" /></label><button type="button" onClick={() => copyLiveScoreToSheet(setIndex)}>Usar placar ao vivo</button></fieldset>;
                 })}</div>
                 <div className="sheet-grid sheet-extra"><label>Oficiais<input value={currentSheet.officials} onChange={(event) => updateSheetField("officials", event.target.value)} placeholder="Árbitro, apontador(a)" /></label><label className="sheet-notes">Ocorrências e observações<textarea value={currentSheet.notes} onChange={(event) => updateSheetField("notes", event.target.value)} rows="3" /></label></div>
                 <p className="autosave-note">Preenchimento salvo automaticamente neste dispositivo.</p>
@@ -1783,7 +1804,7 @@ function App() {
                 <p className="modal-copy">Preveja o horário de término do torneio com base em variáveis e histórico de pontuação.</p>
                 <div className="sheet-grid" style={{ marginBottom: "1.5rem" }}>
                   <label>Pontuação base<input type="number" value="21" readOnly /></label>
-                  <label>Teto de pontos<input type="number" min="21" max="25" value={simConfig.teto} onChange={(e) => setSimConfig({...simConfig, teto: Math.min(25, Math.max(21, Number(e.target.value)))})} /></label>
+                  <label>Teto de pontos<input type="number" min="15" max="21" value={simConfig.teto} onChange={(e) => setSimConfig({...simConfig, teto: Math.min(21, Math.max(15, Number(e.target.value)))})} /></label>
                   <label>Sets por partida<input type="number" value="1" readOnly /></label>
                   <label>Qtd. de jogos no dia<input type="number" min="1" value={simConfig.numeroJogos} onChange={(e) => setSimConfig({...simConfig, numeroJogos: Number(e.target.value)})} /></label>
                   <label>Tempo de almoço (min)<input type="number" min="0" value={simConfig.tempoAlmoco} onChange={(e) => setSimConfig({...simConfig, tempoAlmoco: Number(e.target.value)})} /></label>
@@ -1842,7 +1863,7 @@ function App() {
                       <b>{record.winner}</b>
                     </div>
                     <div className="record-card-sets">
-                      {record.sets.map((set) => <span key={set.number}>SET ÚNICO <b>{set.a} — {set.b}</b></span>)}
+                      {record.sets.map((set) => <span key={set.number}>SET {set.number} <b>{set.a} — {set.b}</b></span>)}
                       <span>TEMPO {record.teamA}: <b>{record.timeoutsUsed?.a ? "SIM" : "NÃO"}</b></span>
                       <span>TEMPO {record.teamB}: <b>{record.timeoutsUsed?.b ? "SIM" : "NÃO"}</b></span>
                     </div>
