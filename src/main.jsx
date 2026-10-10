@@ -313,7 +313,7 @@ COMPETIÇÃO
 • As semifinais são preenchidas automaticamente após o registro dos 20 resultados da fase de chaves.
 
 CONDUTA E ARBITRAGEM
-• A decisão da arbitragem prevalece. O mesário registra os pontos, sets, tempos, sanções e ocorrências.
+• A decisão da arbitragem prevalece. O mesário registra os pontos, o set único, os tempos, sanções e ocorrências.
 • As equipes devem estar prontas no horário. Atrasos e ausência podem resultar em W.O., conforme decisão da organização.
 • Casos omissos serão resolvidos pela organização do torneio.
 
@@ -357,6 +357,7 @@ function App() {
   const [timeoutsUsed, setTimeoutsUsed] = useState({ a: false, b: false });
   const [finishPromptDismissed, setFinishPromptDismissed] = useState(false);
   const [matchStarted, setMatchStarted] = useState(false);
+  const [matchStartedAt, setMatchStartedAt] = useState("");
   const [activeMatch, setActiveMatch] = useState({ a: "AMARELO", b: "AZUL" });
   const [serveAdvantage, setServeAdvantage] = useState("a");
   const [rallies, setRallies] = useState(28);
@@ -544,6 +545,7 @@ function App() {
           if (saved.timeoutsUsed) setTimeoutsUsed(saved.timeoutsUsed);
           if (saved.finishPromptDismissed) setFinishPromptDismissed(true);
           if (saved.matchStarted) setMatchStarted(true);
+          if (saved.matchStartedAt) setMatchStartedAt(saved.matchStartedAt);
           if (saved.activeMatch) setActiveMatch(saved.activeMatch);
           if (saved.activeFixtureKey) setActiveFixtureKey(saved.activeFixtureKey);
           if (saved.selectedFixtureKey) setSelectedFixtureKey(saved.selectedFixtureKey);
@@ -558,6 +560,7 @@ function App() {
         if (!currentTournament) setPendingSet(null);
         if (!currentTournament) setResting(false);
         if (!currentTournament) setMatchStarted(false);
+        if (!currentTournament) setMatchStartedAt("");
         if (!currentTournament) setTimeoutsUsed({ a: false, b: false });
         if (saved.serveAdvantage !== undefined && currentTournament) setServeAdvantage(saved.serveAdvantage);
         if (saved.rallies !== undefined) setRallies(saved.rallies);
@@ -583,13 +586,13 @@ function App() {
     localStorage.setItem(storageKey, JSON.stringify({
       tournamentVersion: 3,
       score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam,
-      timeoutsUsed, finishPromptDismissed, matchStarted,
+      timeoutsUsed, finishPromptDismissed, matchStarted, matchStartedAt,
       posts,
       registeredTeams, users, regulation, matchSheets,
       activeMatch, serveAdvantage, rallies, scheduledMatches,
       activeFixtureKey, selectedFixtureKey, scoringRule,
     }));
-  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam, timeoutsUsed, finishPromptDismissed, matchStarted, posts, registeredTeams, users, regulation, matchSheets, activeMatch, serveAdvantage, rallies, scheduledMatches, activeFixtureKey, selectedFixtureKey, scoringRule]);
+  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam, timeoutsUsed, finishPromptDismissed, matchStarted, matchStartedAt, posts, registeredTeams, users, regulation, matchSheets, activeMatch, serveAdvantage, rallies, scheduledMatches, activeFixtureKey, selectedFixtureKey, scoringRule]);
 
   const activeTeamA = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.a) || registeredTeams[0] || teams[0];
   const activeTeamB = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.b) || registeredTeams[1] || teams[1];
@@ -634,12 +637,19 @@ function App() {
   };
   const confirmMatchFinish = () => {
     if (!pendingSet || !activeFixtureKey || matchFinished) return;
+    const finishedAt = new Date().toISOString();
     const winner = pendingSet.winner === "a" ? activeMatch.a : activeMatch.b;
     const fixture = scheduledMatches.find((match) => match.key === activeFixtureKey);
     const record = {
       id: `${activeFixtureKey}-${Date.now()}`,
       fixture: activeFixtureKey,
       recordedAt: new Date().toISOString(),
+      startedAt: matchStartedAt || null,
+      finishedAt,
+      gameNumber: fixture?.gameNumber || "",
+      scheduledTime: fixture?.time || "",
+      group: fixture?.group || null,
+      phase: fixture?.phase || "Classificatória",
       court: fixture?.court || "Quadra 01",
       category: fixture?.phase || "Classificatória",
       teamA: activeMatch.a,
@@ -671,6 +681,8 @@ function App() {
             ...sheet.sets,
             1: {
               ...sheet.sets[1],
+              start: matchStartedAt ? new Date(matchStartedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : sheet.sets[1]?.start || "",
+              end: new Date(finishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
               scoreA: String(pendingSet.a),
               scoreB: String(pendingSet.b),
               events,
@@ -694,16 +706,19 @@ function App() {
     const content = format === "json"
       ? JSON.stringify(matchRecords, null, 2)
       : [
-        "Data;Jogo;Quadra;Fase;Equipe A;Equipe B;Placar;Vencedor;Tempo A;Tempo B",
+        "Data;Jogo;Horário;Quadra;Fase/Chave;Equipe A;Equipe B;Placar;Vencedor;Início;Término;Tempo A;Tempo B",
         ...matchRecords.map((record) => [
           new Date(record.recordedAt).toLocaleString("pt-BR"),
-          record.fixture,
+          record.gameNumber || record.fixture,
+          record.scheduledTime || "",
           record.court,
-          record.category,
+          record.group ? `${record.phase} ${record.group}` : record.phase || record.category,
           record.teamA,
           record.teamB,
           record.sets.map((set) => `${set.a}x${set.b}`).join(" / "),
           record.winner,
+          record.startedAt ? new Date(record.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "",
+          record.finishedAt ? new Date(record.finishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "",
           record.timeoutsUsed?.a ? "Sim" : "Não",
           record.timeoutsUsed?.b ? "Sim" : "Não",
         ].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(";")),
@@ -749,6 +764,8 @@ function App() {
     setRestingTeam(null);
     setMatchFinished(false);
     setServeAdvantage("a");
+    const startedAt = new Date().toISOString();
+    setMatchStartedAt(startedAt);
     setMatchSheets((current) => {
       const sheet = { ...emptyMatchSheet, ...current[fixture.key] };
       return {
@@ -758,6 +775,14 @@ function App() {
           gameNumber: fixture.gameNumber,
           phase: fixture.phase,
           court: fixture.court,
+          category: fixture.phase,
+          sets: {
+            ...sheet.sets,
+            1: {
+              ...sheet.sets[1],
+              start: new Date(startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+            },
+          },
         },
       };
     });
@@ -786,6 +811,7 @@ function App() {
     setMatchFinished(false);
     setTimeoutsUsed({ a: false, b: false });
     setFinishPromptDismissed(false);
+    setMatchStartedAt("");
   };
   const sendMusicCommand = (command) => {
     musicFrameRef.current?.contentWindow?.postMessage(
@@ -1092,8 +1118,8 @@ function App() {
         </section>
 
         <section className="ticker">
-          <div className="ticker-label"><span className="live-dot" /> AGORA NA ARENA</div>
-          <div className="ticker-match"><strong>QUADRA 01</strong><span>{activeMatch.a} <b>{score.a}</b></span><span className="ticker-vs">—</span><span>{activeMatch.b} <b>{score.b}</b></span></div>
+          <div className="ticker-label"><span className={`live-dot ${matchStarted && !matchFinished ? "" : "is-idle"}`} /> {matchStarted && !matchFinished ? "PARTIDA AO VIVO" : matchFinished ? "ÚLTIMO RESULTADO" : "PRÓXIMO JOGO"}</div>
+          <div className="ticker-match"><strong>JOGO {activeFixture?.gameNumber || "01"} · {activeFixture?.group ? `CHAVE ${activeFixture.group}` : activeFixture?.phase || "CHAVE A"} · {activeFixture?.time || "09:00"}</strong><span>{activeMatch.a} <b>{score.a}</b></span><span className="ticker-vs">×</span><span>{activeMatch.b} <b>{score.b}</b></span></div>
           <a href="#sumula">Acompanhar partida <ArrowUpRight size={15} /></a>
         </section>
 
@@ -1109,7 +1135,7 @@ function App() {
                   <div className="match-time">
                     <strong>{match.time}</strong>
                     <span>
-                      <Clock3 size={13} /> {match.court}
+                      <Clock3 size={13} /> JOGO {match.gameNumber} · {match.court}
                     </span>
                   </div>
                   <div className="match-category">{match.phase === "Semifinal" ? match.phase : `CHAVE ${match.group}`}</div>
@@ -1200,7 +1226,7 @@ function App() {
               </div>
               <div className="match-meta">
                 <span className={`live-dot ${matchStarted && !matchFinished ? "" : "is-idle"}`} /> {matchStarted && !matchFinished ? "AO VIVO" : matchFinished ? "PARTIDA ENCERRADA" : "AGUARDANDO INÍCIO"}
-                <small>{activeFixture?.court || "QUADRA 01"} • {activeFixture?.phase?.toUpperCase() || "CLASSIFICATÓRIA"}</small>
+                <small>JOGO {activeFixture?.gameNumber || "01"} · {activeFixture?.group ? `CHAVE ${activeFixture.group}` : activeFixture?.phase?.toUpperCase() || "CHAVE A"} · {activeFixture?.time || "09:00"} · {activeFixture?.court || "QUADRA 01"}</small>
               </div>
               <button className="records-button" onClick={() => setRecordsOpen(true)}>
                 <History size={16} /> Histórico ({matchRecords.length})
@@ -1216,7 +1242,7 @@ function App() {
             <div className="match-loader">
               <div><strong>CONTROLE DO MESÁRIO</strong><label htmlFor="match-select">SELECIONE O JOGO DA TABELA</label></div>
               <select id="match-select" value={selectedFixtureKey} onChange={(event) => selectFixture(event.target.value)}>
-                {scheduledMatches.map((match) => <option value={match.key} key={match.key} disabled={match.status === "FINALIZADO" || match.status.startsWith("AGUARDANDO")}>{match.gameNumber} · {match.time} · {match.a} x {match.b} · {match.status}</option>)}
+                {scheduledMatches.map((match) => <option value={match.key} key={match.key} disabled={match.status === "FINALIZADO" || match.status.startsWith("AGUARDANDO")}>{match.gameNumber} · {match.time} · {match.group ? `Chave ${match.group}` : match.phase} · {match.a} x {match.b} · {match.status}</option>)}
               </select>
               <button
                 className="button button-yellow"
@@ -1238,6 +1264,7 @@ function App() {
                   <small>EQUIPE {activeMatch.a}</small>
                   <strong>{activeMatch.a}</strong>
                   <p>{activeTeamA.athletes.join(" • ")}</p>
+                  <small className="team-timeout-status">TEMPO {timeoutsUsed.a ? "UTILIZADO" : "DISPONÍVEL"}</small>
                 </div>
                 <button
                   className={`serve-indicator ${serveAdvantage === "a" ? "is-serving" : ""}`}
@@ -1249,7 +1276,7 @@ function App() {
               </div>
               <div className="scoreboard-score">
                 <div className="set-score">
-                  <span>SET ÚNICO</span>
+                  <span>SET ÚNICO · META 21 · LIMITE 25</span>
                   {matchFinished && <b>{sets.a ? activeMatch.a : activeMatch.b} VENCEU</b>}
                 </div>
                 <div className="point-score">
@@ -1259,7 +1286,7 @@ function App() {
                 </div>
                 <small>{!matchStarted ? "AGUARDANDO INÍCIO" : matchFinished ? "PARTIDA ENCERRADA" : "SET ÚNICO"}</small>
                 <div className="set-history">
-                  {setResults.map((result) => <span key={result.number}>SET {result.number}: <b>{result.a} × {result.b}</b></span>)}
+                  {setResults.map((result) => <span key={result.number}>RESULTADO: <b>{result.a} × {result.b}</b></span>)}
                 </div>
               </div>
               <div className="scoreboard-team team-b">
@@ -1267,6 +1294,7 @@ function App() {
                   <small>EQUIPE {activeMatch.b}</small>
                   <strong>{activeMatch.b}</strong>
                   <p>{activeTeamB.athletes.join(" • ")}</p>
+                  <small className="team-timeout-status">TEMPO {timeoutsUsed.b ? "UTILIZADO" : "DISPONÍVEL"}</small>
                 </div>
                 <span
                   className="team-chip"
@@ -1690,12 +1718,13 @@ function App() {
 
             {adminView === "sheet" && allowedAdminViews.includes("sheet") && (
               <div className="console-content">
-                <div className="console-title"><div><p className="section-kicker">SÚMULA ADAPTADA · 4 X 4</p><h3>{activeMatch.a} <i>×</i> {activeMatch.b}</h3></div><label>Selecionar jogo<select value={selectedFixtureKey} onChange={(event) => selectFixture(event.target.value)}>{scheduledMatches.map((match) => <option value={match.key} key={match.key} disabled={match.status === "FINALIZADO" || match.status.startsWith("AGUARDANDO")}>{match.gameNumber} · {match.phase} · {match.a} x {match.b} · {match.status}</option>)}</select><button className="button button-dark" type="button" onClick={() => loadMatch(selectedFixture)} disabled={!selectedFixture || selectedFixture.status === "FINALIZADO" || selectedFixture.status.startsWith("AGUARDANDO") || (matchStarted && selectedFixture.key === activeFixtureKey)}>Iniciar jogo selecionado</button></label></div>
+                <div className="console-title"><div><p className="section-kicker">SÚMULA OFICIAL · JOGO {activeFixture?.gameNumber || "01"}</p><h3>{activeMatch.a} <i>×</i> {activeMatch.b}</h3><p className="sheet-fixture-meta">{activeFixture?.group ? `CHAVE ${activeFixture.group}` : activeFixture?.phase} · {activeFixture?.time} · {activeFixture?.status}</p></div><label>Selecionar jogo<select value={selectedFixtureKey} onChange={(event) => selectFixture(event.target.value)}>{scheduledMatches.map((match) => <option value={match.key} key={match.key} disabled={match.status === "FINALIZADO" || match.status.startsWith("AGUARDANDO")}>{match.gameNumber} · {match.time} · {match.group ? `Chave ${match.group}` : match.phase} · {match.a} x {match.b} · {match.status}</option>)}</select><button className="button button-dark" type="button" onClick={() => loadMatch(selectedFixture)} disabled={!selectedFixture || selectedFixture.status === "FINALIZADO" || selectedFixture.status.startsWith("AGUARDANDO") || (matchStarted && selectedFixture.key === activeFixtureKey)}>Iniciar jogo selecionado</button></label></div>
                 <div className="sheet-grid">
                   <label>Data<input type="date" value={currentSheet.date} onChange={(event) => updateSheetField("date", event.target.value)} /></label>
                   <label>Quadra<input value={currentSheet.court || activeFixture?.court || "Quadra 01"} onChange={(event) => updateSheetField("court", event.target.value)} /></label>
                   <label>Número do jogo<input value={currentSheet.gameNumber} onChange={(event) => updateSheetField("gameNumber", event.target.value)} placeholder="Ex.: 01" /></label>
-                  <label>Categoria<select value={currentSheet.category} onChange={(event) => updateSheetField("category", event.target.value)}><option>Masculino</option><option>Feminino</option><option>Misto</option><option>Recreativo</option></select></label>
+                  <label>Chave / fase<input value={activeFixture?.group ? `Chave ${activeFixture.group}` : activeFixture?.phase || currentSheet.phase} readOnly /></label>
+                  <label>Horário previsto<input type="time" value={activeFixture?.time || ""} readOnly /></label>
                   <label>Capitão {activeMatch.a}<input value={currentSheet.captainA} onChange={(event) => updateSheetField("captainA", event.target.value)} /></label>
                   <label>Capitão {activeMatch.b}<input value={currentSheet.captainB} onChange={(event) => updateSheetField("captainB", event.target.value)} /></label>
                   <label>Primeiro saque<select value={currentSheet.firstServe} onChange={(event) => updateSheetField("firstServe", event.target.value)}><option value="">Selecione</option><option value="a">{activeMatch.a}</option><option value="b">{activeMatch.b}</option></select></label>
@@ -1807,12 +1836,15 @@ function App() {
                     <div className="record-card-head">
                       <div>
                         <strong>{record.teamA} <span>×</span> {record.teamB}</strong>
-                        <small>{new Date(record.recordedAt).toLocaleString("pt-BR")} • {record.court}</small>
+                        <small>JOGO {record.gameNumber || record.fixture} · {record.scheduledTime || "--:--"} · {record.group ? `CHAVE ${record.group}` : record.phase} · {record.court}</small>
+                        <small>Realizado em {new Date(record.recordedAt).toLocaleString("pt-BR")} · início {record.startedAt ? new Date(record.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "--:--"} · término {record.finishedAt ? new Date(record.finishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "--:--"}</small>
                       </div>
                       <b>{record.winner}</b>
                     </div>
                     <div className="record-card-sets">
-                      {record.sets.map((set) => <span key={set.number}>SET {set.number} <b>{set.a} — {set.b}</b></span>)}
+                      {record.sets.map((set) => <span key={set.number}>SET ÚNICO <b>{set.a} — {set.b}</b></span>)}
+                      <span>TEMPO {record.teamA}: <b>{record.timeoutsUsed?.a ? "SIM" : "NÃO"}</b></span>
+                      <span>TEMPO {record.teamB}: <b>{record.timeoutsUsed?.b ? "SIM" : "NÃO"}</b></span>
                     </div>
                   </article>
                 ))}

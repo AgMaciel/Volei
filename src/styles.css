@@ -81,6 +81,10 @@ button { cursor: pointer; }
 .public-regulation { background: #fff; border-top: 1px solid var(--line); }
 .public-regulation .section-heading { align-items: center; margin-bottom: 34px; }
 .regulation-status { border-left: 3px solid #2e9b67; padding: 8px 12px; color: #246f4a; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+.live-dot.is-idle { background: #89939b; }
+.team-timeout-status { margin-top: 8px; color: var(--yellow) !important; font-size: 8px !important; }
+.sheet-fixture-meta { margin: 8px 0 0; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .7px; }
+.record-card-head small + small { margin-top: 4px; }
 .regulation-copy { max-width: 900px; columns: 2; column-gap: 55px; font-size: 14px; line-height: 1.7; }
 .regulation-copy p { margin: 0 0 12px; break-inside: avoid; }
 .regulation-copy .regulation-subhead { margin-top: 17px; color: var(--blue); font-size: 11px; font-weight: 700; letter-spacing: 1px; }
