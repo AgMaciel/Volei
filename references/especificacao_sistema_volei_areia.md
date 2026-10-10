@@ -687,21 +687,20 @@ Todas as alterações devem gerar log.
 
 ## Set 1 e Set 2
 
--   Primeiro a atingir 21 pontos
--   Obrigatoriamente com vantagem mínima de 2
+-   Limite fixo de 21 pontos; o set termina assim que uma equipe atingir 21
+-   Não há exigência de vantagem mínima de 2 pontos
 -   20 x 20 → continua
--   21 x 20 → continua
--   22 x 20 → encerra
+-   21 x 20 → encerra
 
 ## Set 3
 
--   Primeiro a atingir 15 pontos
--   Obrigatoriamente com vantagem mínima de 2
+-   Limite fixo de 15 pontos; o set termina assim que uma equipe atingir 15
+-   Não há exigência de vantagem mínima de 2 pontos
 -   14 x 14 → continua
--   15 x 14 → continua
--   16 x 14 → encerra
+-   15 x 14 → encerra
 
 A partida é vencida pela equipe que conquistar dois sets.
+Ao fim de cada set, o próximo set começa automaticamente, exceto quando a partida já estiver decidida.
 
 ------------------------------------------------------------------------
 
@@ -827,20 +826,17 @@ Tipo: Ace
 
 ------------------------------------------------------------------------
 
-# 25. Vantagens {#25-vantagens}
+# 25. Limite de pontos por set {#25-limite-de-pontos}
 
-Como o vôlei de areia utiliza pontuação por rali e os sets exigem
-vantagem mínima de dois pontos, o sistema deve tratar a situação de
-vantagem como um estado estatístico.
-
-Exemplo:
+Os sets têm limite fixo e não exigem vantagem mínima de dois pontos.
+O placar máximo de cada set é 21 pontos nos dois primeiros sets e 15
+pontos no set decisivo.
 
 ``` text
 20 x 20
 ↓
 21 x 20
-↓
-22 x 20 → set encerrado
+→ set encerrado
 ```
 
 No terceiro set:
@@ -849,15 +845,11 @@ No terceiro set:
 14 x 14
 ↓
 15 x 14
-↓
-16 x 14 → set encerrado
+→ set encerrado
 ```
 
-O sistema deve mostrar:
-
--   Equipe em vantagem
--   Diferença de pontos
--   Ponto necessário para fechamento
+Quando o set termina e a partida ainda não foi decidida, o sistema inicia
+automaticamente o próximo set.
 -   Necessidade de vantagem de 2
 
 ------------------------------------------------------------------------

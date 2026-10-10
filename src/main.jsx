@@ -268,11 +268,8 @@ const getSetTarget = (setNumber = 1) => (setNumber === 3 ? 15 : 21);
 
 const winnerAtScore = (currentScore, setNumber = 1) => {
   const target = getSetTarget(setNumber);
-  if (currentScore.a >= target || currentScore.b >= target) {
-    if (Math.abs(currentScore.a - currentScore.b) >= 2) {
-      return currentScore.a > currentScore.b ? "a" : "b";
-    }
-  }
+  if (currentScore.a >= target) return "a";
+  if (currentScore.b >= target) return "b";
   return null;
 };
 
@@ -305,7 +302,8 @@ const initialRegulation = `TORNEIO DE VÔLEI DE AREIA 4 x 4 — CONDOMÍNIO RESI
 
 FORMATO DA PARTIDA
 • Os jogos serão disputados em melhor de 3 sets, sendo dois sets de 21 pontos e o set de desempate de 15.
-• Em cada set, a vitória exige 2 pontos de diferença; o desempate é jogado até 15 pontos, também com vantagem mínima de 2.
+• Cada set tem limite fixo: os dois primeiros encerram quando uma equipe atinge 21 pontos e o terceiro quando uma equipe atinge 15, sem vantagem mínima.
+• Ao fim de cada set não decisivo, o próximo começa automaticamente. A partida termina quando uma equipe vence dois sets.
 • Cada equipe tem direito a um pedido de tempo por set e pode inscrever até 4 titulares e 2 reservas, conforme a súmula adaptada.
 
 COMPETIÇÃO
@@ -357,7 +355,6 @@ function App() {
   const [resting, setResting] = useState(false);
   const [restingTeam, setRestingTeam] = useState(null);
   const [timeoutsUsed, setTimeoutsUsed] = useState({ a: false, b: false });
-  const [finishPromptDismissed, setFinishPromptDismissed] = useState(false);
   const [matchStarted, setMatchStarted] = useState(false);
   const [matchStartedAt, setMatchStartedAt] = useState("");
   const [activeMatch, setActiveMatch] = useState({ a: "AMARELO", b: "AZUL" });
@@ -539,13 +536,13 @@ function App() {
         if (currentTournament) {
           if (saved.score) setScore(saved.score);
           if (saved.sets) setSets(saved.sets);
+          if (saved.setNumber) setSetNumber(saved.setNumber);
           if (saved.setResults) setSetResults(saved.setResults);
           if (saved.matchFinished !== undefined) setMatchFinished(saved.matchFinished);
           if (saved.pendingSet) setPendingSet(saved.pendingSet);
           if (saved.resting !== undefined) setResting(saved.resting);
           if (saved.restingTeam) setRestingTeam(saved.restingTeam);
           if (saved.timeoutsUsed) setTimeoutsUsed(saved.timeoutsUsed);
-          if (saved.finishPromptDismissed) setFinishPromptDismissed(true);
           if (saved.matchStarted) setMatchStarted(true);
           if (saved.matchStartedAt) setMatchStartedAt(saved.matchStartedAt);
           if (saved.activeMatch) setActiveMatch(saved.activeMatch);
@@ -556,7 +553,7 @@ function App() {
           setSelectedFixtureKey(firstFixture.key);
           setActiveMatch({ a: firstFixture.a, b: firstFixture.b });
         }
-        setSetNumber(1);
+        if (!currentTournament) setSetNumber(1);
         if (!currentTournament) setSetResults([]);
         if (!currentTournament) setMatchFinished(false);
         if (!currentTournament) setPendingSet(null);
@@ -588,13 +585,13 @@ function App() {
     localStorage.setItem(storageKey, JSON.stringify({
       tournamentVersion: 3,
       score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam,
-      timeoutsUsed, finishPromptDismissed, matchStarted, matchStartedAt,
+      timeoutsUsed, matchStarted, matchStartedAt,
       posts,
       registeredTeams, users, regulation, matchSheets,
       activeMatch, serveAdvantage, rallies, scheduledMatches,
       activeFixtureKey, selectedFixtureKey, scoringRule,
     }));
-  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam, timeoutsUsed, finishPromptDismissed, matchStarted, matchStartedAt, posts, registeredTeams, users, regulation, matchSheets, activeMatch, serveAdvantage, rallies, scheduledMatches, activeFixtureKey, selectedFixtureKey, scoringRule]);
+  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam, timeoutsUsed, matchStarted, matchStartedAt, posts, registeredTeams, users, regulation, matchSheets, activeMatch, serveAdvantage, rallies, scheduledMatches, activeFixtureKey, selectedFixtureKey, scoringRule]);
 
   const activeTeamA = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.a) || registeredTeams[0] || teams[0];
   const activeTeamB = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.b) || registeredTeams[1] || teams[1];
@@ -604,7 +601,7 @@ function App() {
   const previousSlide = () =>
     setSlide((current) => (current - 1 + slides.length) % slides.length);
   const addPoint = (team) => {
-    if (!matchStarted || matchFinished || resting || winnerAtScore(score, setNumber)) return;
+    if (!matchStarted || matchFinished || resting || pendingSet || winnerAtScore(score, setNumber)) return;
     const nextScore = { ...score, [team]: score[team] + 1 };
     const winner = winnerAtScore(nextScore, setNumber);
     setScore(nextScore);
@@ -613,19 +610,48 @@ function App() {
     if (winner) {
       const nextSetResults = [...setResults, { number: setNumber, winner, a: nextScore.a, b: nextScore.b }];
       const nextSets = { ...sets, [winner]: (sets[winner] || 0) + 1 };
+      const endedAt = new Date().toISOString();
+      const endedAtTime = new Date(endedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      const hasMatchWinner = nextSets.a >= 2 || nextSets.b >= 2;
       setSetResults(nextSetResults);
       setSets(nextSets);
-      setPendingSet({ number: setNumber, winner, a: nextScore.a, b: nextScore.b });
-      if (nextSets.a >= 2 || nextSets.b >= 2) {
-        setScore({ a: 0, b: 0 });
+      setMatchSheets((current) => {
+        const sheet = { ...emptyMatchSheet, ...current[activeFixtureKey] };
+        const currentSet = sheet.sets[setNumber] || {};
+        const nextSetNumber = setNumber + 1;
+        return {
+          ...current,
+          [activeFixtureKey]: {
+            ...sheet,
+            sets: {
+              ...sheet.sets,
+              [setNumber]: {
+                ...currentSet,
+                start: currentSet.start || (setNumber === 1 && matchStartedAt
+                  ? new Date(matchStartedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                  : ""),
+                end: endedAtTime,
+                scoreA: String(nextScore.a),
+                scoreB: String(nextScore.b),
+                events: [timeoutsUsed.a ? `Tempo solicitado por ${activeMatch.a}` : "", timeoutsUsed.b ? `Tempo solicitado por ${activeMatch.b}` : ""].filter(Boolean).join("; "),
+              },
+              ...(!hasMatchWinner ? {
+                [nextSetNumber]: {
+                  ...sheet.sets[nextSetNumber],
+                  start: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+                },
+              } : {}),
+            },
+          },
+        };
+      });
+      if (hasMatchWinner) {
+        setPendingSet({ number: setNumber, winner, a: nextScore.a, b: nextScore.b, endedAt });
       } else {
+        setPendingSet(null);
         setSetNumber((current) => current + 1);
         setScore({ a: 0, b: 0 });
       }
-      setFinishPromptDismissed(false);
-    } else {
-      setPendingSet(null);
-      setFinishPromptDismissed(false);
     }
   };
   const removePoint = (team) => {
@@ -633,24 +659,24 @@ function App() {
     const nextScore = { ...score, [team]: Math.max(0, score[team] - 1) };
     const winner = winnerAtScore(nextScore, setNumber);
     setScore(nextScore);
-    if (!winner) {
+    if (pendingSet && !winner) {
+      setSetResults((current) => current.filter((result) => result.number !== pendingSet.number));
+      setSets((current) => ({ ...current, [pendingSet.winner]: Math.max(0, current[pendingSet.winner] - 1) }));
       setPendingSet(null);
-      setFinishPromptDismissed(false);
     } else if (pendingSet) {
       setPendingSet({ ...pendingSet, winner, a: nextScore.a, b: nextScore.b });
+      setSetResults((current) => current.map((result) => result.number === pendingSet.number
+        ? { ...result, winner, a: nextScore.a, b: nextScore.b }
+        : result));
     }
   };
   const selectStat = (stat) => {
     setActiveStat(stat);
     setSelectedAthlete(null);
   };
-  const continueMatch = () => {
-    setPendingSet(null);
-    setFinishPromptDismissed(true);
-  };
   const confirmMatchFinish = () => {
     if (!pendingSet || !activeFixtureKey || matchFinished) return;
-    const finishedAt = new Date().toISOString();
+    const finishedAt = pendingSet.endedAt || new Date().toISOString();
     const winner = pendingSet.winner === "a" ? activeMatch.a : activeMatch.b;
     const fixture = scheduledMatches.find((match) => match.key === activeFixtureKey);
     const completedSets = [...setResults];
@@ -719,7 +745,6 @@ function App() {
     setMatchStarted(false);
     setResting(false);
     setRestingTeam(null);
-    setFinishPromptDismissed(false);
   };
   const downloadRecords = (format) => {
     if (!matchRecords.length) return;
@@ -779,7 +804,6 @@ function App() {
     setSetResults([]);
     setPendingSet(null);
     setTimeoutsUsed({ a: false, b: false });
-    setFinishPromptDismissed(false);
     setMatchStarted(true);
     setResting(false);
     setRestingTeam(null);
@@ -809,7 +833,7 @@ function App() {
     });
   };
   const requestTimeout = (team) => {
-    if (!matchStarted || matchFinished || resting || timeoutsUsed[team]) return;
+    if (!matchStarted || matchFinished || resting || pendingSet || timeoutsUsed[team]) return;
     setTimeoutsUsed((current) => ({ ...current, [team]: true }));
     setResting(true);
     setRestingTeam(team);
@@ -831,7 +855,6 @@ function App() {
     setPendingSet(null);
     setMatchFinished(false);
     setTimeoutsUsed({ a: false, b: false });
-    setFinishPromptDismissed(false);
     setMatchStartedAt("");
   };
   const sendMusicCommand = (command) => {
@@ -1297,7 +1320,7 @@ function App() {
               </div>
               <div className="scoreboard-score">
                 <div className="set-score">
-                  <span>MELHOR DE 3 SETS • 2X21 • DESEMPATE 15</span>
+                  <span>MELHOR DE 3 SETS • LIMITE 21/21/15</span>
                   {matchFinished && <b>{sets.a >= 2 ? activeMatch.a : activeMatch.b} VENCEU</b>}
                 </div>
                 <div className="point-score">
@@ -1403,18 +1426,17 @@ function App() {
             </div>
             <div className="set-controls">
               <strong className="timeout-label">PEDIDO DE TEMPO · 1 POR EQUIPE</strong>
-              <button className="timeout-button" onClick={() => requestTimeout("a")} disabled={!matchStarted || matchFinished || resting || timeoutsUsed.a}>
+              <button className="timeout-button" onClick={() => requestTimeout("a")} disabled={!matchStarted || matchFinished || resting || pendingSet || timeoutsUsed.a}>
                 Tempo {activeMatch.a} · {timeoutsUsed.a ? "utilizado" : "disponível"}
               </button>
-              <button className="timeout-button" onClick={() => requestTimeout("b")} disabled={!matchStarted || matchFinished || resting || timeoutsUsed.b}>
+              <button className="timeout-button" onClick={() => requestTimeout("b")} disabled={!matchStarted || matchFinished || resting || pendingSet || timeoutsUsed.b}>
                 Tempo {activeMatch.b} · {timeoutsUsed.b ? "utilizado" : "disponível"}
               </button>
               {pendingSet && (
                 <div className="finish-confirmation" role="status">
-                  <strong>{activeMatch[pendingSet.winner]} atingiu a condição de vitória ({pendingSet.a} — {pendingSet.b}).</strong>
-                  <span>Confirma o encerramento da partida? Se não, o jogo continua.</span>
+                  <strong>{activeMatch[pendingSet.winner]} venceu a partida ({sets.a} — {sets.b} sets; {pendingSet.a} — {pendingSet.b} no set final).</strong>
+                  <span>Confirme o resultado para registrar o encerramento.</span>
                   <button className="button button-yellow" onClick={confirmMatchFinish}>Confirmar encerramento</button>
-                  {pendingSet.a < getSetTarget(pendingSet.number) && pendingSet.b < getSetTarget(pendingSet.number) && <button className="button button-outline" onClick={continueMatch}>Continuar partida</button>}
                 </div>
               )}
               {resting && (
