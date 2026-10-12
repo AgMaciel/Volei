@@ -134,6 +134,14 @@ button { cursor: pointer; }
 .user-create-form { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; }
 .team-create-form input[type="color"] { height: 38px; padding: 4px; }
 .team-create-form button, .user-create-form button { min-height: 39px; width: auto; white-space: nowrap; }
+.next-tournament-actions { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 0 0 18px; padding: 14px 16px; border-left: 3px solid var(--yellow); background: #ebe9e3; }
+.next-tournament-actions p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.next-tournament-actions button { flex: 0 0 auto; min-height: 39px; border: 1px solid #bb433a; background: transparent; color: #9e332b; padding: 0 13px; font-size: 10px; font-weight: 700; }
+.next-tournament-actions button:hover:not(:disabled) { background: #9e332b; color: white; }
+.next-tournament-actions button:disabled { opacity: .45; cursor: not-allowed; }
+.athlete-create-form { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 12px; margin-top: 13px; padding: 16px; background: #ebe9e3; }
+.athlete-create-form button { min-height: 39px; width: auto; white-space: nowrap; }
+.athlete-create-form button:disabled { opacity: .45; cursor: not-allowed; }
 .admin-team-list, .admin-user-list { margin-top: 18px; border-top: 1px solid var(--line); }
 .admin-team-list article, .admin-user-list article { display: flex; align-items: center; gap: 13px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .admin-team-list article > i { flex: 0 0 13px; width: 13px; height: 13px; border: 1px solid rgba(0,0,0,.15); }
@@ -141,6 +149,11 @@ button { cursor: pointer; }
 .admin-team-list strong, .admin-user-list strong { font-size: 12px; }
 .admin-team-list span, .admin-user-list span { overflow-wrap: anywhere; color: var(--muted); font-size: 10px; }
 .admin-team-list button:disabled, .admin-user-list button:disabled { opacity: .45; cursor: not-allowed; }
+.admin-team-athletes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.admin-team-athletes > span { display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border: 1px solid var(--line); background: white; }
+.admin-team-athletes button { padding: 0 2px; border: 0; color: #9e332b; font-size: 14px; line-height: 1; }
+.admin-team-athletes button:hover:not(:disabled) { border: 0; color: #d44d45; }
+.admin-team-card > button { flex: 0 0 auto; }
 .security-note { margin: 20px 0 0; padding-left: 12px; border-left: 2px solid var(--yellow); color: var(--muted); font-size: 10px; line-height: 1.5; }
 .photo-publish-controls { display: flex; align-items: end; gap: 14px; margin: 15px 0 24px; }
 .photo-publish-controls label { flex: 1; }
@@ -155,6 +168,18 @@ button { cursor: pointer; }
 .live-dot.is-idle { background: #8593a1; }
 .match-loader .button { width: auto; white-space: nowrap; }
 .score-actions button:disabled, .set-controls button:disabled { opacity: .45; cursor: not-allowed; }
+.match-clock { display: flex; align-items: center; gap: 30px; margin: 16px 0 0; padding: 16px 20px; border: 1px solid rgba(255,255,255,.15); background: #1c344d; }
+.match-clock > div { display: flex; flex-direction: column; gap: 4px; }
+.match-clock > div > span { color: rgba(255,255,255,.58); font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+.match-clock > div > strong { color: var(--yellow); font-family: 'Archivo Black'; font-size: 28px; line-height: 1; font-variant-numeric: tabular-nums; }
+.match-clock.is-paused { border-color: rgba(246,189,25,.55); }
+.match-clock.is-paused > div:first-child > strong { color: #ff806e; }
+.match-clock-pauses { padding-left: 24px; border-left: 1px solid rgba(255,255,255,.18); }
+.match-clock-pauses > strong { color: white !important; font-size: 19px !important; }
+.match-clock-pauses > small { color: rgba(255,255,255,.55); font-size: 9px; }
+.match-clock-finished { margin-left: auto; color: var(--yellow); font-size: 10px; font-weight: 700; letter-spacing: .7px; }
+.timeout-history { display: flex; flex-wrap: wrap; gap: 7px; padding: 10px 0 0; }
+.timeout-history span { padding: 6px 8px; border: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.75); font-size: 9px; font-weight: 700; letter-spacing: .4px; font-variant-numeric: tabular-nums; }
 .timeout-label { flex-basis: 100%; color: var(--yellow); font-size: 10px; letter-spacing: 1px; }
 .timeout-button { min-height: 38px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: white; padding: 0 12px; font-size: 10px; font-weight: 700; }
 .timeout-button:not(:disabled):hover { border-color: var(--yellow); color: var(--yellow); }
@@ -211,12 +236,19 @@ button { cursor: pointer; }
   .team-create-form, .user-create-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .team-create-form label:nth-child(3), .user-create-form label:nth-child(4) { grid-column: span 2; }
   .team-create-form button, .user-create-form button { grid-column: span 2; width: 100%; }
+  .athlete-create-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .athlete-create-form button { grid-column: span 2; width: 100%; }
+  .next-tournament-actions { align-items: stretch; flex-direction: column; }
   .password-change-form { grid-template-columns: 1fr 1fr; }
   .password-change-form > strong, .password-change-form button { grid-column: span 2; }
   .admin-fixture-list p { grid-template-columns: 1fr; gap: 4px; }
   .admin-scheduled-game p { grid-template-columns: 1fr; }
   .tournament-standings-heading { align-items: flex-start; flex-direction: column; }
   .match-loader .button { width: 100%; }
+  .match-clock { align-items: flex-start; flex-wrap: wrap; gap: 14px 20px; padding: 14px; }
+  .match-clock > div:first-child { flex: 1 1 100%; }
+  .match-clock-pauses { padding-left: 0; border-left: 0; }
+  .match-clock-finished { margin-left: 0; align-self: center; }
   .finish-confirmation .button { flex: 1 1 100%; }
   .photo-publish-controls { align-items: stretch; flex-direction: column; }
   .photo-publish-controls button { width: 100%; }

@@ -26,22 +26,19 @@ const slides = [
     eyebrow: "ALDEIA DA SERRA OPEN • 10 OUT 2026",
     title: "A areia vai ferver em Luziânia.",
     copy: "Um dia inteiro de vôlei, torcida e encontros no Condomínio Aldeia da Serra.",
-    image:
-      "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1800&q=85",
+    image: `${import.meta.env.BASE_URL}references/arena.jpeg`,
   },
   {
     eyebrow: "CONDOMÍNIO ALDEIA DA SERRA",
     title: "Do primeiro saque à grande final.",
     copy: "Prepare sua dupla para um dia de competição e celebração em Luziânia.",
-    image:
-      "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=1800&q=85",
+    image: `${import.meta.env.BASE_URL}references/Equipe_preta.jpeg`,
   },
   {
     eyebrow: "LUZIÂNIA • GOIÁS",
     title: "A aldeia é o nosso palco.",
     copy: "Vôlei de areia, música e encontros em um cenário especial.",
-    image:
-      "https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&w=1800&q=85",
+    image: `${import.meta.env.BASE_URL}references/campeões.jpeg`,
   },
   {
     eyebrow: "ALDEIA DA SERRA OPEN • CONVITE",
@@ -355,8 +352,13 @@ function App() {
   const [resting, setResting] = useState(false);
   const [restingTeam, setRestingTeam] = useState(null);
   const [timeoutsUsed, setTimeoutsUsed] = useState({ a: false, b: false });
+  const [timeoutLog, setTimeoutLog] = useState([]);
+  const [pausedDurationMs, setPausedDurationMs] = useState(0);
+  const [pauseStartedAt, setPauseStartedAt] = useState("");
   const [matchStarted, setMatchStarted] = useState(false);
   const [matchStartedAt, setMatchStartedAt] = useState("");
+  const [matchFinishedAt, setMatchFinishedAt] = useState("");
+  const [timerNow, setTimerNow] = useState(Date.now());
   const [activeMatch, setActiveMatch] = useState({ a: "AMARELO", b: "AZUL" });
   const [serveAdvantage, setServeAdvantage] = useState("a");
   const [rallies, setRallies] = useState(28);
@@ -393,15 +395,35 @@ function App() {
   const [newUser, setNewUser] = useState({ name: "", username: "", password: "", role: "mesario" });
   const [passwordChange, setPasswordChange] = useState({ current: "", next: "" });
   const [newTeam, setNewTeam] = useState({ name: "", color: "#1564f5", athletes: "" });
+  const [newAthlete, setNewAthlete] = useState({ name: "", team: "" });
 
   const [simConfig, setSimConfig] = useState({
     pontuacaoBase: 21,
     teto: 21,
+    setsPorPartida: 3,
+    pontuacaoSetDecisivo: 15,
+    intervaloEntreSets: 3,
+    intervaloEntreJogos: 5,
+    jogoAlmoco: 10,
     tempoAlmoco: 120,
     numeroJogos: 22,
+    horarioInicio: "09:00",
+    horarioLimite: "18:00",
+    segundosPorPontoMin: 20,
+    segundosPorPontoMax: 32,
+    chanceSetEstendido: 20,
     simulacoes: 10000,
   });
   const [simResult, setSimResult] = useState(null);
+  const [simError, setSimError] = useState("");
+
+  const formatElapsedTime = (durationMs) => {
+    const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
 
   const minutosParaHorario = (minutos) => {
     const m = Math.round(minutos);
@@ -410,98 +432,126 @@ function App() {
     return `${String(horas).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
   };
 
-  const runSimulation = () => {
-    const HORARIO_INICIO = 9 * 60; // 09:00
-    const HORARIO_LIMITE = 18 * 60; // 18:00
+  const updateSimulationConfig = (field, value) => {
+    setSimConfig((current) => ({ ...current, [field]: value }));
+    setSimResult(null);
+    setSimError("");
+  };
 
+  const runSimulation = () => {
+    const inicio = simConfig.horarioInicio.split(":").map(Number);
+    const limite = simConfig.horarioLimite.split(":").map(Number);
+    const validTime = (parts) => parts.length === 2 && parts.every(Number.isInteger)
+      && parts[0] >= 0 && parts[0] <= 23 && parts[1] >= 0 && parts[1] <= 59;
+    const validConfig = validTime(inicio)
+      && validTime(limite)
+      && inicio[0] * 60 + inicio[1] < limite[0] * 60 + limite[1]
+      && Number.isInteger(simConfig.pontuacaoBase) && simConfig.pontuacaoBase > 0
+      && Number.isInteger(simConfig.teto) && simConfig.teto >= simConfig.pontuacaoBase
+      && Number.isInteger(simConfig.setsPorPartida) && simConfig.setsPorPartida > 0 && simConfig.setsPorPartida <= 5 && simConfig.setsPorPartida % 2 === 1
+      && Number.isInteger(simConfig.pontuacaoSetDecisivo) && simConfig.pontuacaoSetDecisivo > 0
+      && Number.isInteger(simConfig.intervaloEntreSets) && simConfig.intervaloEntreSets >= 0
+      && Number.isInteger(simConfig.intervaloEntreJogos) && simConfig.intervaloEntreJogos >= 0
+      && Number.isInteger(simConfig.jogoAlmoco) && simConfig.jogoAlmoco >= 0
+      && (simConfig.jogoAlmoco === 0 || simConfig.jogoAlmoco <= simConfig.numeroJogos)
+      && Number.isInteger(simConfig.tempoAlmoco) && simConfig.tempoAlmoco >= 0
+      && Number.isInteger(simConfig.numeroJogos) && simConfig.numeroJogos > 0
+      && Number.isFinite(simConfig.segundosPorPontoMin) && simConfig.segundosPorPontoMin > 0
+      && Number.isFinite(simConfig.segundosPorPontoMax) && simConfig.segundosPorPontoMax >= simConfig.segundosPorPontoMin
+      && Number.isFinite(simConfig.chanceSetEstendido) && simConfig.chanceSetEstendido >= 0 && simConfig.chanceSetEstendido <= 100
+      && Number.isInteger(simConfig.simulacoes) && simConfig.simulacoes >= 100 && simConfig.simulacoes <= 100000;
+    if (!validConfig) {
+      setSimError("Revise os parâmetros: horários, limites e quantidades precisam ser válidos (100 a 100.000 simulações).");
+      setSimResult(null);
+      return;
+    }
+    setSimError("");
+
+    const horarioInicio = inicio[0] * 60 + inicio[1];
+    const horarioLimite = limite[0] * 60 + limite[1];
     const simularSet = (pontuacaoBase, teto) => {
       let pontos = pontuacaoBase;
-      if (teto > pontuacaoBase && Math.random() < 0.20) {
+      if (teto > pontuacaoBase && Math.random() * 100 < simConfig.chanceSetEstendido) {
         pontos = Math.floor(Math.random() * (teto - pontuacaoBase)) + pontuacaoBase + 1;
       }
       return pontos;
     };
 
     const estimarTempoSet = (pontos) => {
-      const segundosPorPonto = 20 + Math.random() * 12; // 20 a 32
+      const segundosPorPonto = simConfig.segundosPorPontoMin
+        + Math.random() * (simConfig.segundosPorPontoMax - simConfig.segundosPorPontoMin);
       return (pontos * segundosPorPonto) / 60;
     };
 
-    const simularPartida = (pontuacaoBase, teto) => {
-      const pontos = simularSet(pontuacaoBase, teto);
-      const temposDosSets = [estimarTempoSet(pontos)];
-      const quantidadeSetsJogados = 1;
-      const tempoTotalSets = temposDosSets.reduce((a, b) => a + b, 0);
-      const tempoTotalIntervalos = 0;
-      const duracaoTotal = tempoTotalSets + tempoTotalIntervalos;
-
-      return {
-        quantidadeSetsJogados,
-        temposDosSets,
-        tempoTotalSets,
-        tempoTotalIntervalos,
-        duracaoTotal,
-      };
+    const simularPartida = () => {
+      let setsA = 0;
+      let setsB = 0;
+      let duracaoTotal = 0;
+      const setsNecessarios = Math.ceil(simConfig.setsPorPartida / 2);
+      while (setsA < setsNecessarios && setsB < setsNecessarios) {
+        const isDecidingSet = setsA === setsNecessarios - 1 && setsB === setsNecessarios - 1;
+        const pontuacaoBase = isDecidingSet
+          ? simConfig.pontuacaoSetDecisivo
+          : simConfig.pontuacaoBase;
+        duracaoTotal += estimarTempoSet(simularSet(pontuacaoBase, simConfig.teto));
+        if (Math.random() < 0.5) setsA++;
+        else setsB++;
+        if (setsA < setsNecessarios && setsB < setsNecessarios) {
+          duracaoTotal += simConfig.intervaloEntreSets;
+        }
+      }
+      return duracaoTotal;
     };
 
-    const simularTorneio = (pontuacaoBase, teto, tempoAlmoco, numeroJogos) => {
-      let tempoAtual = HORARIO_INICIO;
-      const temposJogos = [];
-      const detalhesJogos = [];
+    const simularTorneio = () => {
+      let tempoAtual = horarioInicio;
+      let totalDuracaoJogos = 0;
       let horarioAlmoco = null;
-      const jogoAlmoco = 10;
 
-      for (let jogo = 1; jogo <= numeroJogos; jogo++) {
-        if (jogo === jogoAlmoco) {
+      for (let jogo = 1; jogo <= simConfig.numeroJogos; jogo++) {
+        if (simConfig.jogoAlmoco > 0 && jogo === simConfig.jogoAlmoco) {
           horarioAlmoco = tempoAtual;
-          tempoAtual += tempoAlmoco;
+          tempoAtual += simConfig.tempoAlmoco;
         }
 
-        const resultadoPartida = simularPartida(pontuacaoBase, teto);
-        const duracao = Math.round(resultadoPartida.duracaoTotal);
-        temposJogos.push(duracao);
-        detalhesJogos.push(resultadoPartida);
+        const duracao = Math.round(simularPartida());
+        totalDuracaoJogos += duracao;
         tempoAtual += duracao;
 
-        if (jogo < numeroJogos) {
-          tempoAtual += 5; // TEMPO_INTERVALO_ENTRE_JOGOS = 5
+        if (jogo < simConfig.numeroJogos) {
+          tempoAtual += simConfig.intervaloEntreJogos;
         }
       }
 
       return {
         horarioFinal: tempoAtual,
-        terminouNoPrazo: tempoAtual <= HORARIO_LIMITE,
-        temposJogos,
-        detalhesJogos,
+        terminouNoPrazo: tempoAtual <= horarioLimite,
+        totalDuracaoJogos,
         horarioAlmoco,
       };
     };
 
-    const finais = [];
-    const duracoesPartidas = [];
+    let melhor = Number.POSITIVE_INFINITY;
+    let pior = Number.NEGATIVE_INFINITY;
+    let somaFinais = 0;
+    let somaDuracoes = 0;
     let sucessos = 0;
 
     for (let i = 0; i < simConfig.simulacoes; i++) {
-      const resultado = simularTorneio(
-        simConfig.pontuacaoBase,
-        simConfig.teto,
-        simConfig.tempoAlmoco,
-        simConfig.numeroJogos
-      );
-      finais.push(resultado.horarioFinal);
-      duracoesPartidas.push(...resultado.temposJogos);
+      const resultado = simularTorneio();
+      somaFinais += resultado.horarioFinal;
+      somaDuracoes += resultado.totalDuracaoJogos;
+      melhor = Math.min(melhor, resultado.horarioFinal);
+      pior = Math.max(pior, resultado.horarioFinal);
       if (resultado.terminouNoPrazo) sucessos++;
     }
 
-    const somaFinais = finais.reduce((a, b) => a + b, 0);
-    const somaDuracoes = duracoesPartidas.reduce((a, b) => a + b, 0);
-
     setSimResult({
       probabilidade: (sucessos / simConfig.simulacoes) * 100,
-      mediaFinal: somaFinais / finais.length,
-      melhor: Math.min(...finais),
-      pior: Math.max(...finais),
-      duracaoMediaPartida: somaDuracoes / duracoesPartidas.length,
+      mediaFinal: somaFinais / simConfig.simulacoes,
+      melhor,
+      pior,
+      duracaoMediaPartida: somaDuracoes / (simConfig.numeroJogos * simConfig.simulacoes),
     });
   };
   useEffect(() => {
@@ -511,6 +561,12 @@ function App() {
     }, 5000);
     return () => window.clearInterval(timer);
   }, [posts.length]);
+
+  useEffect(() => {
+    if (!matchStarted || matchFinished) return undefined;
+    const timer = window.setInterval(() => setTimerNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [matchStarted, matchFinished]);
 
   const visiblePosts = Array.from({ length: Math.min(3, posts.length) }, (_, offset) => posts[(galleryIndex + offset) % posts.length]);
 
@@ -543,8 +599,12 @@ function App() {
           if (saved.resting !== undefined) setResting(saved.resting);
           if (saved.restingTeam) setRestingTeam(saved.restingTeam);
           if (saved.timeoutsUsed) setTimeoutsUsed(saved.timeoutsUsed);
+          if (saved.timeoutLog) setTimeoutLog(saved.timeoutLog);
+          if (saved.pausedDurationMs !== undefined) setPausedDurationMs(saved.pausedDurationMs);
+          if (saved.pauseStartedAt) setPauseStartedAt(saved.pauseStartedAt);
           if (saved.matchStarted) setMatchStarted(true);
           if (saved.matchStartedAt) setMatchStartedAt(saved.matchStartedAt);
+          if (saved.matchFinishedAt) setMatchFinishedAt(saved.matchFinishedAt);
           if (saved.activeMatch) setActiveMatch(saved.activeMatch);
           if (saved.activeFixtureKey) setActiveFixtureKey(saved.activeFixtureKey);
           if (saved.selectedFixtureKey) setSelectedFixtureKey(saved.selectedFixtureKey);
@@ -560,7 +620,11 @@ function App() {
         if (!currentTournament) setResting(false);
         if (!currentTournament) setMatchStarted(false);
         if (!currentTournament) setMatchStartedAt("");
+        if (!currentTournament) setMatchFinishedAt("");
         if (!currentTournament) setTimeoutsUsed({ a: false, b: false });
+        if (!currentTournament) setTimeoutLog([]);
+        if (!currentTournament) setPausedDurationMs(0);
+        if (!currentTournament) setPauseStartedAt("");
         if (saved.serveAdvantage !== undefined && currentTournament) setServeAdvantage(saved.serveAdvantage);
         if (saved.rallies !== undefined) setRallies(saved.rallies);
         if (saved.posts) setPosts(saved.posts);
@@ -585,17 +649,48 @@ function App() {
     localStorage.setItem(storageKey, JSON.stringify({
       tournamentVersion: 3,
       score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam,
-      timeoutsUsed, matchStarted, matchStartedAt,
+      timeoutsUsed, timeoutLog, pausedDurationMs, pauseStartedAt, matchStarted, matchStartedAt, matchFinishedAt,
       posts,
       registeredTeams, users, regulation, matchSheets,
       activeMatch, serveAdvantage, rallies, scheduledMatches,
       activeFixtureKey, selectedFixtureKey, scoringRule,
     }));
-  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam, timeoutsUsed, matchStarted, matchStartedAt, posts, registeredTeams, users, regulation, matchSheets, activeMatch, serveAdvantage, rallies, scheduledMatches, activeFixtureKey, selectedFixtureKey, scoringRule]);
+  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam, timeoutsUsed, timeoutLog, pausedDurationMs, pauseStartedAt, matchStarted, matchStartedAt, matchFinishedAt, posts, registeredTeams, users, regulation, matchSheets, activeMatch, serveAdvantage, rallies, scheduledMatches, activeFixtureKey, selectedFixtureKey, scoringRule]);
 
-  const activeTeamA = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.a) || registeredTeams[0] || teams[0];
-  const activeTeamB = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.b) || registeredTeams[1] || teams[1];
+  const activeTeamA = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.a) || {
+    name: activeMatch.a,
+    color: "#8a929a",
+    athletes: [],
+  };
+  const activeTeamB = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.b) || {
+    name: activeMatch.b,
+    color: "#8a929a",
+    athletes: [],
+  };
   const standings = getTournamentStandings(registeredTeams, matchRecords);
+  const activeMatchRecord = matchRecords.find((record) => record.fixture === activeFixtureKey);
+  const matchStartedTimestamp = matchStartedAt ? Date.parse(matchStartedAt) : null;
+  const activePauseStartedTimestamp = pauseStartedAt ? Date.parse(pauseStartedAt) : null;
+  const timerEndTimestamp = matchFinishedAt
+    ? Date.parse(matchFinishedAt)
+    : matchFinished && activeMatchRecord?.finishedAt
+      ? Date.parse(activeMatchRecord.finishedAt)
+    : pendingSet?.endedAt
+      ? Date.parse(pendingSet.endedAt)
+      : resting && activePauseStartedTimestamp
+        ? activePauseStartedTimestamp
+        : timerNow;
+  const currentPauseDurationMs = resting && activePauseStartedTimestamp
+    ? Math.max(0, timerNow - activePauseStartedTimestamp)
+    : 0;
+  const matchElapsedMs = matchFinished && activeMatchRecord?.durationMs !== undefined
+    ? activeMatchRecord.durationMs
+    : matchStartedTimestamp
+      ? Math.max(0, timerEndTimestamp - matchStartedTimestamp - pausedDurationMs)
+      : 0;
+  const totalPausedMs = matchFinished && activeMatchRecord?.pausedDurationMs !== undefined
+    ? activeMatchRecord.pausedDurationMs
+    : pausedDurationMs + currentPauseDurationMs;
 
   const nextSlide = () => setSlide((current) => (current + 1) % slides.length);
   const previousSlide = () =>
@@ -693,6 +788,11 @@ function App() {
       recordedAt: new Date().toISOString(),
       startedAt: matchStartedAt || null,
       finishedAt,
+      durationMs: matchStartedAt
+        ? Math.max(0, Date.parse(finishedAt) - Date.parse(matchStartedAt) - pausedDurationMs)
+        : 0,
+      pausedDurationMs,
+      timeoutLog,
       gameNumber: fixture?.gameNumber || "",
       scheduledTime: fixture?.time || "",
       group: fixture?.group || null,
@@ -743,6 +843,7 @@ function App() {
     setPendingSet(null);
     setMatchFinished(true);
     setMatchStarted(false);
+    setMatchFinishedAt(finishedAt);
     setResting(false);
     setRestingTeam(null);
   };
@@ -752,7 +853,7 @@ function App() {
     const content = format === "json"
       ? JSON.stringify(matchRecords, null, 2)
       : [
-        "Data;Jogo;Horário;Quadra;Fase/Chave;Equipe A;Equipe B;Placar;Vencedor;Início;Término;Tempo A;Tempo B",
+        "Data;Jogo;Horário;Quadra;Fase/Chave;Equipe A;Equipe B;Placar;Vencedor;Início;Término;Duração da partida;Duração das pausas;Pedidos de tempo;Tempo A;Tempo B",
         ...matchRecords.map((record) => [
           new Date(record.recordedAt).toLocaleString("pt-BR"),
           record.gameNumber || record.fixture,
@@ -765,6 +866,9 @@ function App() {
           record.winner,
           record.startedAt ? new Date(record.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "",
           record.finishedAt ? new Date(record.finishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "",
+          formatElapsedTime(record.durationMs || 0),
+          formatElapsedTime(record.pausedDurationMs || 0),
+          (record.timeoutLog || []).map((timeout) => `${timeout.team}: ${formatElapsedTime(timeout.durationMs || 0)}`).join(", "),
           record.timeoutsUsed?.a ? "Sim" : "Não",
           record.timeoutsUsed?.b ? "Sim" : "Não",
         ].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(";")),
@@ -804,6 +908,9 @@ function App() {
     setSetResults([]);
     setPendingSet(null);
     setTimeoutsUsed({ a: false, b: false });
+    setTimeoutLog([]);
+    setPausedDurationMs(0);
+    setPauseStartedAt("");
     setMatchStarted(true);
     setResting(false);
     setRestingTeam(null);
@@ -811,6 +918,8 @@ function App() {
     setServeAdvantage("a");
     const startedAt = new Date().toISOString();
     setMatchStartedAt(startedAt);
+    setMatchFinishedAt("");
+    setTimerNow(Date.parse(startedAt));
     setMatchSheets((current) => {
       const sheet = { ...emptyMatchSheet, ...current[fixture.key] };
       return {
@@ -834,11 +943,25 @@ function App() {
   };
   const requestTimeout = (team) => {
     if (!matchStarted || matchFinished || resting || pendingSet || timeoutsUsed[team]) return;
+    const startedAt = new Date().toISOString();
     setTimeoutsUsed((current) => ({ ...current, [team]: true }));
+    setPauseStartedAt(startedAt);
+    setTimeoutLog((current) => [...current, { team: activeMatch[team], startedAt, endedAt: null, durationMs: null }]);
     setResting(true);
     setRestingTeam(team);
   };
   const continueAfterRest = () => {
+    if (pauseStartedAt) {
+      const endedAt = new Date().toISOString();
+      const durationMs = Math.max(0, Date.parse(endedAt) - Date.parse(pauseStartedAt));
+      setPausedDurationMs((current) => current + durationMs);
+      setTimeoutLog((current) => current.map((timeout, index) => (
+        index === current.length - 1 && !timeout.endedAt
+          ? { ...timeout, endedAt, durationMs }
+          : timeout
+      )));
+      setPauseStartedAt("");
+    }
     setResting(false);
     setRestingTeam(null);
   };
@@ -855,7 +978,12 @@ function App() {
     setPendingSet(null);
     setMatchFinished(false);
     setTimeoutsUsed({ a: false, b: false });
+    setTimeoutLog([]);
+    setPausedDurationMs(0);
+    setPauseStartedAt("");
     setMatchStartedAt("");
+    setMatchFinishedAt("");
+    setTimerNow(Date.now());
   };
   const sendMusicCommand = (command) => {
     musicFrameRef.current?.contentWindow?.postMessage(
@@ -985,10 +1113,24 @@ function App() {
       return;
     }
     const athletes = newTeam.athletes.split(/[\n,;]/).map((athlete) => athlete.trim()).filter(Boolean);
+    if (athletes.length > 6) {
+      window.alert("Cada equipe pode cadastrar até 6 atletas.");
+      return;
+    }
+    if (new Set(athletes.map((athlete) => athlete.toLocaleLowerCase("pt-BR"))).size !== athletes.length) {
+      window.alert("Não é possível repetir atletas na mesma equipe.");
+      return;
+    }
     const nextTeams = [...registeredTeams, { name, color: newTeam.color, athletes }];
     const nextSchedule = createTournamentSchedule(nextTeams, matchRecords, null).matches;
     setRegisteredTeams(nextTeams);
     setScheduledMatches(nextSchedule);
+    if (!matchStarted && !matchRecords.length) {
+      const firstFixture = nextSchedule[0];
+      setActiveFixtureKey(firstFixture.key);
+      setSelectedFixtureKey(firstFixture.key);
+      setActiveMatch({ a: firstFixture.a.toUpperCase(), b: firstFixture.b.toUpperCase() });
+    }
     setNewTeam({ name: "", color: "#1564f5", athletes: "" });
   };
 
@@ -998,15 +1140,88 @@ function App() {
       return;
     }
     const nextTeams = registeredTeams.filter((team) => team.name !== name);
-    const nextSchedule = createTournamentSchedule(nextTeams, [], null).matches;
+    const nextSchedule = createTournamentSchedule(nextTeams, matchRecords, null).matches;
+    const firstFixture = nextSchedule[0];
     setRegisteredTeams(nextTeams);
     setScheduledMatches(nextSchedule);
-    setActiveFixtureKey("C1");
-    setSelectedFixtureKey("C1");
-    setActiveMatch({ a: nextSchedule[0].a, b: nextSchedule[0].b });
-    setMatchStarted(false);
-    setMatchFinished(false);
+    setActiveFixtureKey(firstFixture.key);
+    setSelectedFixtureKey(firstFixture.key);
+    setActiveMatch({ a: firstFixture.a.toUpperCase(), b: firstFixture.b.toUpperCase() });
+    setNewAthlete((current) => current.team === name ? { ...current, team: nextTeams[0]?.name || "" } : current);
+  };
+
+  const createAthlete = (event) => {
+    event.preventDefault();
+    const name = newAthlete.name.trim();
+    const teamName = newAthlete.team || registeredTeams[0]?.name;
+    if (!name || !teamName) return;
+    if (matchStarted || matchRecords.length) {
+      window.alert("O cadastro de atletas fica bloqueado durante o torneio. Prepare o próximo torneio para alterar os cadastros.");
+      return;
+    }
+    const team = registeredTeams.find((item) => item.name === teamName);
+    if (!team) {
+      window.alert("Selecione uma equipe válida.");
+      return;
+    }
+    if (team.athletes.length >= 6) {
+      window.alert("Cada equipe pode cadastrar até 6 atletas.");
+      return;
+    }
+    if (team.athletes.some((athlete) => athlete.toLocaleLowerCase("pt-BR") === name.toLocaleLowerCase("pt-BR"))) {
+      window.alert("Este atleta já está cadastrado nessa equipe.");
+      return;
+    }
+    setRegisteredTeams((current) => current.map((item) => item.name === teamName
+      ? { ...item, athletes: [...item.athletes, name] }
+      : item));
+    setNewAthlete({ name: "", team: teamName });
+  };
+
+  const removeAthlete = (teamName, athleteName) => {
+    if (matchStarted || matchRecords.length) {
+      window.alert("O cadastro de atletas fica bloqueado durante o torneio. Prepare o próximo torneio para alterar os cadastros.");
+      return;
+    }
+    setRegisteredTeams((current) => current.map((team) => team.name === teamName
+      ? { ...team, athletes: team.athletes.filter((athlete) => athlete !== athleteName) }
+      : team));
+  };
+
+  const prepareNextTournament = () => {
+    const confirmed = window.confirm(
+      "Isso apagará as equipes, atletas, resultados, histórico de partidas e súmulas deste torneio. Usuários, publicações e regulamento serão mantidos. Deseja continuar?",
+    );
+    if (!confirmed) return;
+    const emptySchedule = createTournamentSchedule([], [], null).matches;
+    setRegisteredTeams([]);
+    setMatchRecords([]);
+    setScheduledMatches(emptySchedule);
+    setMatchSheets({});
+    setActiveFixtureKey("J01");
+    setSelectedFixtureKey("J01");
+    setActiveMatch({ a: "EQUIPE 1", b: "EQUIPE 2" });
     setScore({ a: 0, b: 0 });
+    setSets({ a: 0, b: 0 });
+    setSetNumber(1);
+    setSetResults([]);
+    setMatchFinished(false);
+    setPendingSet(null);
+    setResting(false);
+    setRestingTeam(null);
+    setTimeoutsUsed({ a: false, b: false });
+    setMatchStarted(false);
+    setMatchStartedAt("");
+    setMatchFinishedAt("");
+    setTimeoutLog([]);
+    setPausedDurationMs(0);
+    setPauseStartedAt("");
+    setServeAdvantage("a");
+    setRallies(0);
+    setRallyRecords([]);
+    setSelectedAthlete(null);
+    setNewTeam({ name: "", color: "#1564f5", athletes: "" });
+    setNewAthlete({ name: "", team: "" });
   };
 
   const updateSheetField = (field, value) => {
@@ -1269,7 +1484,7 @@ function App() {
                 </h2>
               </div>
               <div className="match-meta">
-                <span className={`live-dot ${matchStarted && !matchFinished ? "" : "is-idle"}`} /> {matchStarted && !matchFinished ? "AO VIVO" : matchFinished ? "PARTIDA ENCERRADA" : "AGUARDANDO INÍCIO"}
+                <span className={`live-dot ${matchStarted && !matchFinished ? "" : "is-idle"}`} /> {resting ? "TEMPO PEDIDO" : matchStarted && !matchFinished ? "AO VIVO" : matchFinished ? "PARTIDA ENCERRADA" : "AGUARDANDO INÍCIO"}
                 <small>JOGO {activeFixture?.gameNumber || "01"} · {activeFixture?.group ? `CHAVE ${activeFixture.group}` : activeFixture?.phase?.toUpperCase() || "CHAVE A"} · {activeFixture?.time || "09:00"} · {activeFixture?.court || "QUADRA 01"}</small>
               </div>
               <button className="records-button" onClick={() => setRecordsOpen(true)}>
@@ -1296,6 +1511,29 @@ function App() {
                 {matchStarted && selectedFixture?.key === activeFixtureKey ? "Partida em andamento" : "Iniciar jogo"}
               </button>
             </div>
+            <div className={`match-clock ${resting ? "is-paused" : ""}`} role="timer" aria-live="off">
+              <div>
+                <span>{resting ? "PARTIDA PAUSADA · PEDIDO DE TEMPO" : matchStarted ? "TEMPO DE PARTIDA" : matchFinished ? "DURAÇÃO DA PARTIDA" : "CRONÔMETRO"}</span>
+                <strong>{formatElapsedTime(matchElapsedMs)}</strong>
+              </div>
+              <div className="match-clock-pauses">
+                <span>TEMPO TOTAL DE PAUSAS</span>
+                <strong>{formatElapsedTime(totalPausedMs)}</strong>
+                <small>{timeoutLog.length} {timeoutLog.length === 1 ? "pedido de tempo" : "pedidos de tempo"}</small>
+              </div>
+              {matchFinishedAt && <small className="match-clock-finished">ENCERRADA ÀS {new Date(matchFinishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</small>}
+            </div>
+            {timeoutLog.length > 0 && (
+              <div className="timeout-history" aria-label="Histórico dos pedidos de tempo">
+                {timeoutLog.map((timeout, index) => (
+                  <span key={`${timeout.startedAt}-${index}`}>
+                    TEMPO {timeout.team} · {timeout.durationMs === null
+                      ? `EM ANDAMENTO ${formatElapsedTime(currentPauseDurationMs)}`
+                      : formatElapsedTime(timeout.durationMs)}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="scoreboard">
               <div className="scoreboard-team team-a">
                 <span
@@ -1427,10 +1665,10 @@ function App() {
             <div className="set-controls">
               <strong className="timeout-label">PEDIDO DE TEMPO · 1 POR EQUIPE</strong>
               <button className="timeout-button" onClick={() => requestTimeout("a")} disabled={!matchStarted || matchFinished || resting || pendingSet || timeoutsUsed.a}>
-                Tempo {activeMatch.a} · {timeoutsUsed.a ? "utilizado" : "disponível"}
+                Solicitar tempo {activeMatch.a} · {timeoutsUsed.a ? "utilizado" : "disponível"}
               </button>
               <button className="timeout-button" onClick={() => requestTimeout("b")} disabled={!matchStarted || matchFinished || resting || pendingSet || timeoutsUsed.b}>
-                Tempo {activeMatch.b} · {timeoutsUsed.b ? "utilizado" : "disponível"}
+                Solicitar tempo {activeMatch.b} · {timeoutsUsed.b ? "utilizado" : "disponível"}
               </button>
               {pendingSet && (
                 <div className="finish-confirmation" role="status">
@@ -1442,7 +1680,7 @@ function App() {
               {resting && (
                 <div className="rest-notice">
                   <strong>TEMPO SOLICITADO · {activeMatch[restingTeam]}</strong>
-                  <span>Placar pausado. A mesa pode retomar a partida quando estiver pronta.</span>
+                  <span>Cronômetro da partida pausado · tempo solicitado: {formatElapsedTime(currentPauseDurationMs)}.</span>
                   <button onClick={continueAfterRest}>Retomar partida</button>
                 </div>
               )}
@@ -1807,7 +2045,46 @@ function App() {
             )}
 
             {adminView === "teams" && allowedAdminViews.includes("teams") && (
-              <div className="console-content"><div className="console-title"><div><p className="section-kicker">CADASTRO</p><h3>Equipes <i>inscritas.</i></h3></div><span>{registeredTeams.length}/10 equipes</span></div><form className="team-create-form" onSubmit={createTeam}><label>Nome da equipe<input required value={newTeam.name} onChange={(event) => setNewTeam({ ...newTeam, name: event.target.value })} /></label><label>Cor<input type="color" value={newTeam.color} onChange={(event) => setNewTeam({ ...newTeam, color: event.target.value })} /></label><label>Atletas (separe por vírgula ou linha)<input value={newTeam.athletes} onChange={(event) => setNewTeam({ ...newTeam, athletes: event.target.value })} /></label><button className="button button-dark" type="submit" disabled={registeredTeams.length >= 10 || matchStarted || matchRecords.length > 0}>Adicionar equipe</button></form><div className="admin-team-list">{registeredTeams.map((team) => <article key={team.name}><i style={{ background: team.color }} /><div><strong>{team.name}</strong><span>{team.athletes.join(" · ") || "Atletas não informados"}</span></div><button disabled={matchStarted || matchRecords.length > 0} onClick={() => removeTeam(team.name)} aria-label={`Remover equipe ${team.name}`}>Remover</button></article>)}</div></div>
+              <div className="console-content">
+                <div className="console-title">
+                  <div><p className="section-kicker">CADASTRO DO TORNEIO</p><h3>Equipes e <i>atletas.</i></h3></div>
+                  <span>{registeredTeams.length}/10 equipes · {registeredTeams.reduce((total, team) => total + team.athletes.length, 0)} atletas</span>
+                </div>
+                <div className="next-tournament-actions">
+                  <p>Finalize ou arquive o torneio atual antes de alterar cadastros. Os dados do próximo torneio aparecem automaticamente no placar e na página pública.</p>
+                  <button type="button" onClick={prepareNextTournament} disabled={!registeredTeams.length && !matchRecords.length && !matchStarted}>Preparar próximo torneio</button>
+                </div>
+                <form className="team-create-form" onSubmit={createTeam}>
+                  <label>Nome da equipe<input required value={newTeam.name} onChange={(event) => setNewTeam({ ...newTeam, name: event.target.value })} /></label>
+                  <label>Cor<input type="color" value={newTeam.color} onChange={(event) => setNewTeam({ ...newTeam, color: event.target.value })} /></label>
+                  <label>Atletas (opcional; separados por vírgula ou linha)<input value={newTeam.athletes} onChange={(event) => setNewTeam({ ...newTeam, athletes: event.target.value })} /></label>
+                  <button className="button button-dark" type="submit" disabled={registeredTeams.length >= 10 || matchStarted || matchRecords.length > 0}>Cadastrar equipe</button>
+                </form>
+                <form className="athlete-create-form" onSubmit={createAthlete}>
+                  <label>Nome do atleta<input required value={newAthlete.name} onChange={(event) => setNewAthlete({ ...newAthlete, name: event.target.value })} /></label>
+                  <label>Equipe<select required value={newAthlete.team || registeredTeams[0]?.name || ""} onChange={(event) => setNewAthlete({ ...newAthlete, team: event.target.value })}><option value="" disabled>Cadastre uma equipe primeiro</option>{registeredTeams.map((team) => <option value={team.name} key={team.name}>{team.name}</option>)}</select></label>
+                  <button className="button button-dark" type="submit" disabled={!registeredTeams.length || matchStarted || matchRecords.length > 0}>Cadastrar atleta</button>
+                </form>
+                {(matchStarted || matchRecords.length > 0) && <p className="autosave-note">Os cadastros estão bloqueados durante o torneio. Use “Preparar próximo torneio” para limpar os resultados e iniciar novos cadastros.</p>}
+                <div className="admin-team-list">
+                  {registeredTeams.map((team) => (
+                    <article className="admin-team-card" key={team.name}>
+                      <i style={{ background: team.color }} />
+                      <div>
+                        <strong>{team.name}</strong>
+                        <span>{team.athletes.length}/6 atletas cadastrados</span>
+                        <div className="admin-team-athletes">
+                          {team.athletes.length
+                            ? team.athletes.map((athlete) => <span key={athlete}>{athlete}<button type="button" disabled={matchStarted || matchRecords.length > 0} onClick={() => removeAthlete(team.name, athlete)} aria-label={`Remover atleta ${athlete} da equipe ${team.name}`}>×</button></span>)
+                            : <span>Atletas não informados</span>}
+                        </div>
+                      </div>
+                      <button disabled={matchStarted || matchRecords.length > 0} onClick={() => removeTeam(team.name)} aria-label={`Remover equipe ${team.name}`}>Remover equipe</button>
+                    </article>
+                  ))}
+                  {!registeredTeams.length && <p className="records-empty">Área limpa para o próximo torneio. Cadastre as equipes e depois os atletas.</p>}
+                </div>
+              </div>
             )}
 
             {adminView === "users" && currentUser.role === "admin" && (
@@ -1823,15 +2100,25 @@ function App() {
                 <div className="console-title">
                   <div><p className="section-kicker">MONTE CARLO</p><h3>Simulação <i>de tempo.</i></h3></div>
                 </div>
-                <p className="modal-copy">Preveja o horário de término do torneio com base em variáveis e histórico de pontuação.</p>
+                <p className="modal-copy">Ajuste todos os parâmetros do torneio; cada alteração será aplicada na próxima simulação.</p>
                 <div className="sheet-grid" style={{ marginBottom: "1.5rem" }}>
-                  <label>Pontuação base<input type="number" value="21" readOnly /></label>
-                  <label>Teto de pontos<input type="number" min="15" max="21" value={simConfig.teto} onChange={(e) => setSimConfig({...simConfig, teto: Math.min(21, Math.max(15, Number(e.target.value)))})} /></label>
-                  <label>Sets por partida<input type="number" value="1" readOnly /></label>
-                  <label>Qtd. de jogos no dia<input type="number" min="1" value={simConfig.numeroJogos} onChange={(e) => setSimConfig({...simConfig, numeroJogos: Number(e.target.value)})} /></label>
-                  <label>Tempo de almoço (min)<input type="number" min="0" value={simConfig.tempoAlmoco} onChange={(e) => setSimConfig({...simConfig, tempoAlmoco: Number(e.target.value)})} /></label>
-                  <label>Nº de simulações<input type="number" min="100" step="100" value={simConfig.simulacoes} onChange={(e) => setSimConfig({...simConfig, simulacoes: Number(e.target.value)})} /></label>
+                  <label>Pontuação base<input type="number" min="1" value={simConfig.pontuacaoBase} onChange={(event) => updateSimulationConfig("pontuacaoBase", Number(event.target.value))} /></label>
+                  <label>Teto de pontos<input type="number" min="1" value={simConfig.teto} onChange={(event) => updateSimulationConfig("teto", Number(event.target.value))} /></label>
+                  <label>Sets por partida (melhor de)<input type="number" min="1" max="5" step="2" value={simConfig.setsPorPartida} onChange={(event) => updateSimulationConfig("setsPorPartida", Number(event.target.value))} /></label>
+                  <label>Pontos do set decisivo<input type="number" min="1" value={simConfig.pontuacaoSetDecisivo} onChange={(event) => updateSimulationConfig("pontuacaoSetDecisivo", Number(event.target.value))} /></label>
+                  <label>Jogos no torneio<input type="number" min="1" value={simConfig.numeroJogos} onChange={(event) => updateSimulationConfig("numeroJogos", Number(event.target.value))} /></label>
+                  <label>Jogo antes do almoço (0 desativa)<input type="number" min="0" value={simConfig.jogoAlmoco} onChange={(event) => updateSimulationConfig("jogoAlmoco", Number(event.target.value))} /></label>
+                  <label>Intervalo de almoço (min)<input type="number" min="0" value={simConfig.tempoAlmoco} onChange={(event) => updateSimulationConfig("tempoAlmoco", Number(event.target.value))} /></label>
+                  <label>Intervalo entre partidas (min)<input type="number" min="0" value={simConfig.intervaloEntreJogos} onChange={(event) => updateSimulationConfig("intervaloEntreJogos", Number(event.target.value))} /></label>
+                  <label>Intervalo entre sets (min)<input type="number" min="0" value={simConfig.intervaloEntreSets} onChange={(event) => updateSimulationConfig("intervaloEntreSets", Number(event.target.value))} /></label>
+                  <label>Início do torneio<input type="time" value={simConfig.horarioInicio} onChange={(event) => updateSimulationConfig("horarioInicio", event.target.value)} /></label>
+                  <label>Horário limite<input type="time" value={simConfig.horarioLimite} onChange={(event) => updateSimulationConfig("horarioLimite", event.target.value)} /></label>
+                  <label>Segundos por ponto (mín.)<input type="number" min="1" step="0.5" value={simConfig.segundosPorPontoMin} onChange={(event) => updateSimulationConfig("segundosPorPontoMin", Number(event.target.value))} /></label>
+                  <label>Segundos por ponto (máx.)<input type="number" min="1" step="0.5" value={simConfig.segundosPorPontoMax} onChange={(event) => updateSimulationConfig("segundosPorPontoMax", Number(event.target.value))} /></label>
+                  <label>Chance de set estendido (%)<input type="number" min="0" max="100" step="1" value={simConfig.chanceSetEstendido} onChange={(event) => updateSimulationConfig("chanceSetEstendido", Number(event.target.value))} /></label>
+                  <label>Nº de simulações (100–100.000)<input type="number" min="100" max="100000" step="100" value={simConfig.simulacoes} onChange={(event) => updateSimulationConfig("simulacoes", Number(event.target.value))} /></label>
                 </div>
+                {simError && <p className="form-error" role="alert">{simError}</p>}
                 <button className="button button-dark" onClick={runSimulation}>
                   Rodar Simulação
                 </button>
@@ -1842,7 +2129,7 @@ function App() {
                       <small>{simConfig.simulacoes.toLocaleString("pt-BR")} cenários testados</small>
                     </div>
                     <div className="fixture-preview" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <span><b>Probabilidade de terminar até 18:00:</b> {simResult.probabilidade.toFixed(2)}%</span>
+                      <span><b>Probabilidade de terminar até {simConfig.horarioLimite}:</b> {simResult.probabilidade.toFixed(2)}%</span>
                       <span><b>Duração média por partida:</b> {simResult.duracaoMediaPartida.toFixed(1)} min</span>
                       <span><b>Horário médio de término:</b> {minutosParaHorario(simResult.mediaFinal)}</span>
                       <span><b>Melhor cenário (mais cedo):</b> {minutosParaHorario(simResult.melhor)}</span>
@@ -1880,7 +2167,8 @@ function App() {
                       <div>
                         <strong>{record.teamA} <span>×</span> {record.teamB}</strong>
                         <small>JOGO {record.gameNumber || record.fixture} · {record.scheduledTime || "--:--"} · {record.group ? `CHAVE ${record.group}` : record.phase} · {record.court}</small>
-                        <small>Realizado em {new Date(record.recordedAt).toLocaleString("pt-BR")} · início {record.startedAt ? new Date(record.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "--:--"} · término {record.finishedAt ? new Date(record.finishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "--:--"}</small>
+                        <small>Realizado em {new Date(record.recordedAt).toLocaleString("pt-BR")} · início {record.startedAt ? new Date(record.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "--:--"} · término {record.finishedAt ? new Date(record.finishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "--:--"}</small>
+                        <small>Duração da partida: {formatElapsedTime(record.durationMs || 0)} · tempo total de pausa: {formatElapsedTime(record.pausedDurationMs || 0)}</small>
                       </div>
                       <b>{record.winner}</b>
                     </div>
@@ -1888,6 +2176,9 @@ function App() {
                       {record.sets.map((set) => <span key={set.number}>SET {set.number} <b>{set.a} — {set.b}</b></span>)}
                       <span>TEMPO {record.teamA}: <b>{record.timeoutsUsed?.a ? "SIM" : "NÃO"}</b></span>
                       <span>TEMPO {record.teamB}: <b>{record.timeoutsUsed?.b ? "SIM" : "NÃO"}</b></span>
+                      {(record.timeoutLog || []).map((timeout, index) => (
+                        <span key={`${timeout.startedAt}-${index}`}>PAUSA {timeout.team}: <b>{formatElapsedTime(timeout.durationMs || 0)}</b></span>
+                      ))}
                     </div>
                   </article>
                 ))}
