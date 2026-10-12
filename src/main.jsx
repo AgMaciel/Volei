@@ -26,19 +26,19 @@ const slides = [
     eyebrow: "ALDEIA DA SERRA OPEN • 10 OUT 2026",
     title: "A areia vai ferver em Luziânia.",
     copy: "Um dia inteiro de vôlei, torcida e encontros no Condomínio Aldeia da Serra.",
-    image: `${import.meta.env.BASE_URL}references/arena.jpeg`,
+    image: `${import.meta.env.BASE_URL}references/arena.jpeg?v=20261012`,
   },
   {
     eyebrow: "CONDOMÍNIO ALDEIA DA SERRA",
     title: "Do primeiro saque à grande final.",
     copy: "Prepare sua dupla para um dia de competição e celebração em Luziânia.",
-    image: `${import.meta.env.BASE_URL}references/Equipe_preta.jpeg`,
+    image: `${import.meta.env.BASE_URL}references/Equipe_preta.jpeg?v=20261012`,
   },
   {
     eyebrow: "LUZIÂNIA • GOIÁS",
     title: "A aldeia é o nosso palco.",
     copy: "Vôlei de areia, música e encontros em um cenário especial.",
-    image: `${import.meta.env.BASE_URL}references/campeões.jpeg`,
+    image: `${import.meta.env.BASE_URL}references/campeões.jpeg?v=20261012`,
   },
   {
     eyebrow: "ALDEIA DA SERRA OPEN • CONVITE",
@@ -63,59 +63,6 @@ const slides = [
     video: "/references/video3.mp4",
     poster:
       "https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&w=1800&q=85",
-  },
-];
-
-const teams = [
-  {
-    name: "Amarelo",
-    color: "#f6bd19",
-    athletes: ["Gabriel", "Alessandro", "Júlia", "Lara"],
-  },
-  {
-    name: "Azul",
-    color: "#1564f5",
-    athletes: ["Tarcio", "Ravi", "Márcia", "Mauricio"],
-  },
-  {
-    name: "Branco",
-    color: "#d8d8d3",
-    athletes: ["Marcelo", "Katia", "Andréia", "Bia"],
-  },
-  {
-    name: "Laranja",
-    color: "#ed7438",
-    athletes: ["Isac", "Pereira", "Lucilainy", "Marcela"],
-  },
-  {
-    name: "Marrom / Azul-marinho",
-    color: "#81563f",
-    athletes: ["Fernando", "Pedro", "Roberta", "Maria Eduarda"],
-  },
-  {
-    name: "Preto",
-    color: "#20252c",
-    athletes: ["Matheus Oliveira", "Aline", "Marília", "Matheus (Bia)"],
-  },
-  {
-    name: "Rosa",
-    color: "#e85d93",
-    athletes: ["Agis", "Dirceu", "Rejane", "Fran"],
-  },
-  {
-    name: "Roxo",
-    color: "#7c52b6",
-    athletes: ["Kayky", "SAN", "Michele", "Maira"],
-  },
-  {
-    name: "Verde",
-    color: "#2e9b67",
-    athletes: ["Maycon", "Marize", "Elisio", "Isabelly"],
-  },
-  {
-    name: "Vermelho",
-    color: "#d44d45",
-    athletes: ["Silvio", "Athur", "Nilma", "Ana Paula"],
   },
 ];
 
@@ -145,6 +92,10 @@ const tournamentGames = [
 ];
 
 const resultForFixture = (records, key) => records.find((record) => record.fixture === key);
+
+const hasCompleteTeamRegistration = (registeredTeams) =>
+  registeredTeams.length === 10
+  && registeredTeams.every((team) => Array.isArray(team.athletes) && team.athletes.length >= 4);
 
 const getTournamentStandings = (registeredTeams, matchRecords) => {
   const teamsByName = registeredTeams.slice(0, 10).map((team, index) => ({
@@ -214,6 +165,7 @@ const getTournamentStandings = (registeredTeams, matchRecords) => {
 };
 
 const createTournamentSchedule = (registeredTeams, matchRecords, activeFixtureKey) => {
+  if (!hasCompleteTeamRegistration(registeredTeams)) return { matches: [], standings: [] };
   const standings = getTournamentStandings(registeredTeams, matchRecords);
   const teamsByName = new Map(registeredTeams.map((team) => [team.name.toUpperCase(), team]));
   const standingsByGroupAndRank = new Map(standings.map((team) => [`${team.group}-${team.rank}`, team]));
@@ -359,7 +311,7 @@ function App() {
   const [matchStartedAt, setMatchStartedAt] = useState("");
   const [matchFinishedAt, setMatchFinishedAt] = useState("");
   const [timerNow, setTimerNow] = useState(Date.now());
-  const [activeMatch, setActiveMatch] = useState({ a: "AMARELO", b: "AZUL" });
+  const [activeMatch, setActiveMatch] = useState({ a: "A DEFINIR", b: "A DEFINIR" });
   const [serveAdvantage, setServeAdvantage] = useState("a");
   const [rallies, setRallies] = useState(28);
   const [activeStat, setActiveStat] = useState("PONTO");
@@ -367,7 +319,8 @@ function App() {
   const [rallyRecords, setRallyRecords] = useState([]);
   const [fullscreenScoreboard, setFullscreenScoreboard] = useState(false);
   const [adminTab, setAdminTab] = useState("publicar");
-  const [scheduledMatches, setScheduledMatches] = useState(() => createTournamentSchedule(teams, [], null).matches);
+  const [scheduledMatches, setScheduledMatches] = useState([]);
+  const [schedulePublished, setSchedulePublished] = useState(false);
   const [activeFixtureKey, setActiveFixtureKey] = useState("J01");
   const [selectedFixtureKey, setSelectedFixtureKey] = useState("J01");
   const [scoringRule, setScoringRule] = useState(
@@ -384,7 +337,7 @@ function App() {
   const [effectPlaying, setEffectPlaying] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const fileInput = useRef(null);
-  const [registeredTeams, setRegisteredTeams] = useState(teams);
+  const [registeredTeams, setRegisteredTeams] = useState([]);
   const [users, setUsers] = useState(initialUsers);
   const [currentUser, setCurrentUser] = useState(null);
   const [loginUsername, setLoginUsername] = useState("admin");
@@ -574,21 +527,26 @@ function App() {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
       if (saved) {
-        const savedTeams = (saved.registeredTeams || teams).map((team) =>
-          team.name.toUpperCase() === "MARROM"
-            ? { ...team, name: "Marrom / Azul-marinho" }
-            : team,
-        );
+        const savedTeams = (saved.registeredTeams || []).map((team) => ({
+          ...team,
+          ...(team.name.toUpperCase() === "MARROM" ? { name: "Marrom / Azul-marinho" } : {}),
+          athletes: Array.isArray(team.athletes) ? team.athletes : [],
+        }));
         const savedRecords = saved.matchRecords || [];
-        const currentTournament = saved.tournamentVersion === 3;
-        const firstFixture = createTournamentSchedule(savedTeams, savedRecords, "J01").matches[0];
+        const shouldRestoreSchedule = saved.tournamentVersion >= 4 && saved.schedulePublished === true;
+        const currentTournament = shouldRestoreSchedule;
+        const savedSchedule = shouldRestoreSchedule
+          ? createTournamentSchedule(
+            savedTeams,
+            savedRecords,
+            currentTournament && saved.matchStarted ? saved.activeFixtureKey : null,
+          ).matches
+          : [];
+        const firstFixture = savedSchedule[0];
         setRegisteredTeams(savedTeams);
         setMatchRecords(savedRecords);
-        setScheduledMatches(createTournamentSchedule(
-          savedTeams,
-          savedRecords,
-          currentTournament && saved.matchStarted ? saved.activeFixtureKey : null,
-        ).matches);
+        setScheduledMatches(savedSchedule);
+        setSchedulePublished(shouldRestoreSchedule && savedSchedule.length > 0);
         if (currentTournament) {
           if (saved.score) setScore(saved.score);
           if (saved.sets) setSets(saved.sets);
@@ -609,9 +567,12 @@ function App() {
           if (saved.activeFixtureKey) setActiveFixtureKey(saved.activeFixtureKey);
           if (saved.selectedFixtureKey) setSelectedFixtureKey(saved.selectedFixtureKey);
         } else {
-          setActiveFixtureKey(firstFixture.key);
-          setSelectedFixtureKey(firstFixture.key);
-          setActiveMatch({ a: firstFixture.a, b: firstFixture.b });
+          setActiveMatch({ a: "A DEFINIR", b: "A DEFINIR" });
+          if (firstFixture) {
+            setActiveFixtureKey(firstFixture.key);
+            setSelectedFixtureKey(firstFixture.key);
+            setActiveMatch({ a: firstFixture.a, b: firstFixture.b });
+          }
         }
         if (!currentTournament) setSetNumber(1);
         if (!currentTournament) setSetResults([]);
@@ -647,15 +608,16 @@ function App() {
   useEffect(() => {
     if (!hydratedRef.current || !isHydrated) return;
     localStorage.setItem(storageKey, JSON.stringify({
-      tournamentVersion: 3,
+      tournamentVersion: 4,
       score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam,
       timeoutsUsed, timeoutLog, pausedDurationMs, pauseStartedAt, matchStarted, matchStartedAt, matchFinishedAt,
       posts,
       registeredTeams, users, regulation, matchSheets,
+      schedulePublished,
       activeMatch, serveAdvantage, rallies, scheduledMatches,
       activeFixtureKey, selectedFixtureKey, scoringRule,
     }));
-  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam, timeoutsUsed, timeoutLog, pausedDurationMs, pauseStartedAt, matchStarted, matchStartedAt, matchFinishedAt, posts, registeredTeams, users, regulation, matchSheets, activeMatch, serveAdvantage, rallies, scheduledMatches, activeFixtureKey, selectedFixtureKey, scoringRule]);
+  }, [isHydrated, score, sets, setNumber, setResults, matchRecords, matchFinished, pendingSet, resting, restingTeam, timeoutsUsed, timeoutLog, pausedDurationMs, pauseStartedAt, matchStarted, matchStartedAt, matchFinishedAt, posts, registeredTeams, users, regulation, matchSheets, schedulePublished, activeMatch, serveAdvantage, rallies, scheduledMatches, activeFixtureKey, selectedFixtureKey, scoringRule]);
 
   const activeTeamA = registeredTeams.find((team) => team.name.toUpperCase() === activeMatch.a) || {
     name: activeMatch.a,
@@ -810,7 +772,9 @@ function App() {
     };
     const nextRecords = [record, ...matchRecords];
     setMatchRecords(nextRecords);
-    setScheduledMatches(createTournamentSchedule(registeredTeams, nextRecords, null).matches);
+    setScheduledMatches(schedulePublished
+      ? createTournamentSchedule(registeredTeams, nextRecords, null).matches
+      : []);
     setMatchSheets((current) => {
       const sheet = { ...emptyMatchSheet, ...current[activeFixtureKey] };
       const events = [
@@ -1122,14 +1086,18 @@ function App() {
       return;
     }
     const nextTeams = [...registeredTeams, { name, color: newTeam.color, athletes }];
-    const nextSchedule = createTournamentSchedule(nextTeams, matchRecords, null).matches;
+    const nextSchedule = schedulePublished
+      ? createTournamentSchedule(nextTeams, matchRecords, null).matches
+      : [];
     setRegisteredTeams(nextTeams);
     setScheduledMatches(nextSchedule);
-    if (!matchStarted && !matchRecords.length) {
+    if (!matchStarted && !matchRecords.length && nextSchedule.length) {
       const firstFixture = nextSchedule[0];
       setActiveFixtureKey(firstFixture.key);
       setSelectedFixtureKey(firstFixture.key);
       setActiveMatch({ a: firstFixture.a.toUpperCase(), b: firstFixture.b.toUpperCase() });
+    } else if (!nextSchedule.length) {
+      setActiveMatch({ a: "A DEFINIR", b: "A DEFINIR" });
     }
     setNewTeam({ name: "", color: "#1564f5", athletes: "" });
   };
@@ -1140,13 +1108,20 @@ function App() {
       return;
     }
     const nextTeams = registeredTeams.filter((team) => team.name !== name);
-    const nextSchedule = createTournamentSchedule(nextTeams, matchRecords, null).matches;
+    const nextSchedule = [];
     const firstFixture = nextSchedule[0];
     setRegisteredTeams(nextTeams);
     setScheduledMatches(nextSchedule);
-    setActiveFixtureKey(firstFixture.key);
-    setSelectedFixtureKey(firstFixture.key);
-    setActiveMatch({ a: firstFixture.a.toUpperCase(), b: firstFixture.b.toUpperCase() });
+    setSchedulePublished(false);
+    if (firstFixture) {
+      setActiveFixtureKey(firstFixture.key);
+      setSelectedFixtureKey(firstFixture.key);
+      setActiveMatch({ a: firstFixture.a.toUpperCase(), b: firstFixture.b.toUpperCase() });
+    } else {
+      setActiveFixtureKey("J01");
+      setSelectedFixtureKey("J01");
+      setActiveMatch({ a: "A DEFINIR", b: "A DEFINIR" });
+    }
     setNewAthlete((current) => current.team === name ? { ...current, team: nextTeams[0]?.name || "" } : current);
   };
 
@@ -1172,9 +1147,19 @@ function App() {
       window.alert("Este atleta já está cadastrado nessa equipe.");
       return;
     }
-    setRegisteredTeams((current) => current.map((item) => item.name === teamName
+    const nextTeams = registeredTeams.map((item) => item.name === teamName
       ? { ...item, athletes: [...item.athletes, name] }
-      : item));
+      : item);
+    const nextSchedule = schedulePublished
+      ? createTournamentSchedule(nextTeams, matchRecords, null).matches
+      : [];
+    setRegisteredTeams(nextTeams);
+    setScheduledMatches(nextSchedule);
+    if (nextSchedule.length) {
+      setActiveFixtureKey(nextSchedule[0].key);
+      setSelectedFixtureKey(nextSchedule[0].key);
+      setActiveMatch({ a: nextSchedule[0].a.toUpperCase(), b: nextSchedule[0].b.toUpperCase() });
+    }
     setNewAthlete({ name: "", team: teamName });
   };
 
@@ -1183,9 +1168,48 @@ function App() {
       window.alert("O cadastro de atletas fica bloqueado durante o torneio. Prepare o próximo torneio para alterar os cadastros.");
       return;
     }
-    setRegisteredTeams((current) => current.map((team) => team.name === teamName
+    const nextTeams = registeredTeams.map((team) => team.name === teamName
       ? { ...team, athletes: team.athletes.filter((athlete) => athlete !== athleteName) }
-      : team));
+      : team);
+    const nextSchedule = schedulePublished
+      ? createTournamentSchedule(nextTeams, matchRecords, null).matches
+      : [];
+    if (!nextSchedule.length) setSchedulePublished(false);
+    setRegisteredTeams(nextTeams);
+    setScheduledMatches(nextSchedule);
+    if (!nextSchedule.length) {
+      setActiveFixtureKey("J01");
+      setSelectedFixtureKey("J01");
+      setActiveMatch({ a: "A DEFINIR", b: "A DEFINIR" });
+    }
+  };
+
+  const publishTournamentSchedule = () => {
+    if (matchStarted || matchRecords.length) {
+      window.alert("A tabela não pode ser alterada depois do início do torneio.");
+      return;
+    }
+    if (!hasCompleteTeamRegistration(registeredTeams)) {
+      window.alert("Cadastre 10 equipes e pelo menos 4 atletas em cada uma antes de gerar a tabela.");
+      return;
+    }
+    const nextSchedule = createTournamentSchedule(registeredTeams, [], null).matches;
+    if (!nextSchedule.length) {
+      window.alert("Não foi possível gerar a tabela com os cadastros atuais.");
+      return;
+    }
+    setSchedulePublished(true);
+    setScheduledMatches(nextSchedule);
+    setActiveFixtureKey(nextSchedule[0].key);
+    setSelectedFixtureKey(nextSchedule[0].key);
+    setActiveMatch({ a: nextSchedule[0].a.toUpperCase(), b: nextSchedule[0].b.toUpperCase() });
+    setScore({ a: 0, b: 0 });
+    setSets({ a: 0, b: 0 });
+    setSetNumber(1);
+    setSetResults([]);
+    setMatchFinished(false);
+    setMatchFinishedAt("");
+    setPendingSet(null);
   };
 
   const prepareNextTournament = () => {
@@ -1197,10 +1221,11 @@ function App() {
     setRegisteredTeams([]);
     setMatchRecords([]);
     setScheduledMatches(emptySchedule);
+    setSchedulePublished(false);
     setMatchSheets({});
     setActiveFixtureKey("J01");
     setSelectedFixtureKey("J01");
-    setActiveMatch({ a: "EQUIPE 1", b: "EQUIPE 2" });
+    setActiveMatch({ a: "A DEFINIR", b: "A DEFINIR" });
     setScore({ a: 0, b: 0 });
     setSets({ a: 0, b: 0 });
     setSetNumber(1);
@@ -1378,7 +1403,9 @@ function App() {
 
         <section className="ticker">
           <div className="ticker-label"><span className={`live-dot ${matchStarted && !matchFinished ? "" : "is-idle"}`} /> {matchStarted && !matchFinished ? "PARTIDA AO VIVO" : matchFinished ? "ÚLTIMO RESULTADO" : "PRÓXIMO JOGO"}</div>
-          <div className="ticker-match"><strong>JOGO {activeFixture?.gameNumber || "01"} · {activeFixture?.group ? `CHAVE ${activeFixture.group}` : activeFixture?.phase || "CHAVE A"} · {activeFixture?.time || "09:00"}</strong><span>{activeMatch.a} <b>{score.a}</b></span><span className="ticker-vs">×</span><span>{activeMatch.b} <b>{score.b}</b></span></div>
+          {activeFixture ? (
+            <div className="ticker-match"><strong>JOGO {activeFixture.gameNumber} · {activeFixture.group ? `CHAVE ${activeFixture.group}` : activeFixture.phase} · {activeFixture.time}</strong><span>{activeMatch.a} <b>{score.a}</b></span><span className="ticker-vs">×</span><span>{activeMatch.b} <b>{score.b}</b></span></div>
+          ) : <div className="ticker-match"><strong>A tabela será publicada após o cadastro de 10 equipes com pelo menos 4 atletas cada.</strong></div>}
           <a href="#sumula">Acompanhar partida <ArrowUpRight size={15} /></a>
         </section>
 
@@ -1387,7 +1414,7 @@ function App() {
             <div><p className="section-kicker">TABELA DE JOGOS</p><h2>O próximo ponto<br /><i>começa agora.</i></h2></div>
               <div className="date-switcher"><button>‹</button><span><small>DATA DO TORNEIO</small> 10 OUT 2026</span><button>›</button></div>
           </div>
-          <div className="match-list">
+          {scheduledMatches.length ? <div className="match-list">
             {scheduledMatches.map((match) => (
               <div className="scheduled-game" key={match.key}>
                 <article className="match-row">
@@ -1432,10 +1459,10 @@ function App() {
                 {match.breakAfter && <div className="schedule-break"><strong>🍽️ {match.breakAfter}</strong></div>}
               </div>
             ))}
-          </div>
-          <a className="under-link" href="#jogos">
+          </div> : <div className="schedule-empty-state">A tabela será disponibilizada após o cadastro de 10 equipes com pelo menos 4 atletas cada e a geração pelo painel administrativo.</div>}
+          {scheduledMatches.length > 0 && <a className="under-link" href="#jogos">
             Ver tabela completa <ArrowUpRight size={15} />
-          </a>
+          </a>}
           <div className="tournament-standings">
             <div className="tournament-standings-heading">
               <div><p className="section-kicker">CLASSIFICAÇÃO</p><h3>Chaves e <i>semifinalistas.</i></h3></div>
@@ -1691,8 +1718,8 @@ function App() {
                 <span>{selectedAthlete ? `${activeStat} • ${selectedAthlete}` : `Selecione quem realizou ${activeStat.toLowerCase()}`}</span>
               </div>
               <div className="athlete-picker-groups">
-                {[activeTeamA, activeTeamB].map((team) => (
-                  <div className="athlete-picker-group" key={team.name}>
+                {[[activeTeamA, "a"], [activeTeamB, "b"]].map(([team, side]) => (
+                  <div className="athlete-picker-group" key={side}>
                     <small>{team.name.toUpperCase()}</small>
                     <div>
                       {team.athletes.map((athlete) => (
@@ -1751,6 +1778,7 @@ function App() {
                 </div>
               </article>
             ))}
+            {!registeredTeams.length && <p className="roster-empty-state">As equipes e os atletas cadastrados pela organização aparecerão aqui.</p>}
           </div>
         </section>
 
@@ -2023,20 +2051,21 @@ function App() {
               <div className="console-content">
                 <div className="console-title"><div><p className="section-kicker">TABELA OFICIAL · 22 JOGOS</p><h3>Fases do <i>campeonato.</i></h3></div><span>{new Set(matchRecords.filter((record) => /^J(?:0[1-9]|1[0-9]|2[0-2])$/.test(record.fixture)).map((record) => record.fixture)).size} resultados registrados</span></div>
                 <p className="modal-copy">20 jogos classificatórios em duas chaves, seguidos por duas semifinais. Os confrontos das semifinais são preenchidos após a conclusão das duas chaves.</p>
-                {registeredTeams.length !== 10 && <p className="form-error" role="alert">Cadastre exatamente 10 equipes para iniciar a tabela oficial. No momento: {registeredTeams.length}.</p>}
+                {!hasCompleteTeamRegistration(registeredTeams) && <p className="schedule-empty-state" role="status">A tabela será liberada quando houver 10 equipes cadastradas, cada uma com pelo menos 4 atletas. Agora: {registeredTeams.length}/10 equipes completas.</p>}
+                {hasCompleteTeamRegistration(registeredTeams) && !schedulePublished && <div className="schedule-publish-actions"><span>As inscrições estão completas. Gere a tabela para disponibilizar os 22 jogos no placar e no site.</span><button type="button" className="button button-dark" onClick={publishTournamentSchedule} disabled={matchStarted || matchRecords.length > 0}>Gerar tabela de jogos</button></div>}
                 <div className="admin-fixture-list">
                   {scheduledMatches.map((match) => <div className="admin-scheduled-game" key={match.key}>
                     <p><b>{match.gameNumber} · {match.time} · {match.phase}{match.group ? ` · CHAVE ${match.group}` : ""}</b><span>{match.a} × {match.b} · {match.status}{match.score ? ` · ${match.score}` : ""}</span></p>
                     {match.breakAfter && <div className="schedule-break"><strong>🍽️ {match.breakAfter}</strong></div>}
                   </div>)}
                 </div>
-                <div className="tournament-standings admin-standings">
+                {scheduledMatches.length > 0 && <div className="tournament-standings admin-standings">
                   <h4>CLASSIFICAÇÃO POR CHAVE · DUAS VAGAS PARA CADA SEMIFINAL</h4>
                   <div className="standings-table-wrap"><table className="standings-table">
                     <thead><tr><th>Chave</th><th>Pos.</th><th>Equipe</th><th>J</th><th>V</th><th>D</th><th>Pontos</th><th>Saldo</th><th>Classificação</th></tr></thead>
                     <tbody>{standings.map((team) => <tr key={team.name} className={team.qualified ? "qualified-row" : ""}><td>{team.group}</td><td>{team.rank}</td><td><i style={{ background: team.color }} />{team.name.toUpperCase()}</td><td>{team.played}</td><td>{team.wins}</td><td>{team.losses}</td><td>{team.pointsFor}</td><td>{team.pointDiff > 0 ? "+" : ""}{team.pointDiff}</td><td>{team.qualified === null ? (team.wins ? `${team.rank}º · provisório` : "A jogar") : team.qualified ? "Semifinalista" : "Eliminado"}</td></tr>)}</tbody>
                   </table></div>
-                </div>
+                </div>}
               </div>
             )}
 
@@ -2050,6 +2079,7 @@ function App() {
                   <div><p className="section-kicker">CADASTRO DO TORNEIO</p><h3>Equipes e <i>atletas.</i></h3></div>
                   <span>{registeredTeams.length}/10 equipes · {registeredTeams.reduce((total, team) => total + team.athletes.length, 0)} atletas</span>
                 </div>
+                <p className="autosave-note">A tabela será preenchida quando as 10 equipes tiverem pelo menos 4 atletas cadastrados. Cada equipe pode inscrever até 6 atletas.</p>
                 <div className="next-tournament-actions">
                   <p>Finalize ou arquive o torneio atual antes de alterar cadastros. Os dados do próximo torneio aparecem automaticamente no placar e na página pública.</p>
                   <button type="button" onClick={prepareNextTournament} disabled={!registeredTeams.length && !matchRecords.length && !matchStarted}>Preparar próximo torneio</button>
@@ -2065,6 +2095,10 @@ function App() {
                   <label>Equipe<select required value={newAthlete.team || registeredTeams[0]?.name || ""} onChange={(event) => setNewAthlete({ ...newAthlete, team: event.target.value })}><option value="" disabled>Cadastre uma equipe primeiro</option>{registeredTeams.map((team) => <option value={team.name} key={team.name}>{team.name}</option>)}</select></label>
                   <button className="button button-dark" type="submit" disabled={!registeredTeams.length || matchStarted || matchRecords.length > 0}>Cadastrar atleta</button>
                 </form>
+                <div className="schedule-publish-actions">
+                  <span>{schedulePublished ? "Tabela de 22 jogos publicada." : hasCompleteTeamRegistration(registeredTeams) ? "Cadastros completos. Gere a tabela para publicá-la no placar e no site." : "Para liberar a tabela: 10 equipes com pelo menos 4 atletas cada."}</span>
+                  <button type="button" className="button button-dark" onClick={publishTournamentSchedule} disabled={!hasCompleteTeamRegistration(registeredTeams) || schedulePublished || matchStarted || matchRecords.length > 0}>Gerar tabela de jogos</button>
+                </div>
                 {(matchStarted || matchRecords.length > 0) && <p className="autosave-note">Os cadastros estão bloqueados durante o torneio. Use “Preparar próximo torneio” para limpar os resultados e iniciar novos cadastros.</p>}
                 <div className="admin-team-list">
                   {registeredTeams.map((team) => (
