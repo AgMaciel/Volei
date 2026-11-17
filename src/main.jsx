@@ -23,85 +23,97 @@ import "./styles.css";
 
 const slides = [
   {
-    eyebrow: "ALDEIA DA SERRA OPEN • 10 OUT 2026",
+    eyebrow: "ALDEIA DA SERRA OPEN 40+ • 20 NOV 2026",
     title: "A areia vai ferver em Luziânia.",
-    copy: "Um dia inteiro de vôlei, torcida e encontros no Condomínio Aldeia da Serra.",
-    image: `${import.meta.env.BASE_URL}references/arena.jpeg?v=20261012`,
+    copy: "Sexta-feira, 20 de novembro: vôlei, torcida e encontros no Condomínio Aldeia da Serra.",
+    image: `${import.meta.env.BASE_URL}references/arena.jpeg?v=20261120`,
   },
   {
-    eyebrow: "CONDOMÍNIO ALDEIA DA SERRA",
+    eyebrow: "TORNEIO 40+ • SEXTA-FEIRA",
     title: "Do primeiro saque à grande final.",
-    copy: "Prepare sua dupla para um dia de competição e celebração em Luziânia.",
-    image: `${import.meta.env.BASE_URL}references/Equipe_preta.jpeg?v=20261012`,
+    copy: "Uma nova competição de vôlei de areia espera por você em Luziânia.",
+    image: `${import.meta.env.BASE_URL}references/Equipe_preta.jpeg?v=20261120`,
   },
   {
-    eyebrow: "LUZIÂNIA • GOIÁS",
-    title: "A aldeia é o nosso palco.",
-    copy: "Vôlei de areia, música e encontros em um cenário especial.",
-    image: `${import.meta.env.BASE_URL}references/campeões.jpeg?v=20261012`,
+    eyebrow: "20 DE NOVEMBRO • LUZIÂNIA",
+    title: "Uma nova rodada de histórias na areia.",
+    copy: "O torneio 40+ chega à Aldeia da Serra para mais um dia de vôlei de areia.",
+    image: `${import.meta.env.BASE_URL}references/campeões.jpeg?v=20261120`,
   },
   {
-    eyebrow: "ALDEIA DA SERRA OPEN • CONVITE",
+    eyebrow: "ALDEIA DA SERRA OPEN 40+ • CONVITE",
     title: "Veja a energia do Open.",
     copy: "Acompanhe os vídeos da arena e venha viver esse dia com a gente.",
     video: "/references/video1.mp4",
-    poster:
-      "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1800&q=85",
+    poster: `${import.meta.env.BASE_URL}references/arena.jpeg`,
   },
   {
-    eyebrow: "ALDEIA DA SERRA OPEN • CONVITE",
+    eyebrow: "ALDEIA DA SERRA OPEN 40+ • CONVITE",
     title: "Veja a energia do Open.",
     copy: "Acompanhe os vídeos da arena e venha viver esse dia com a gente.",
     video: "/references/video2.mp4",
-    poster:
-      "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=1800&q=85",
+    poster: `${import.meta.env.BASE_URL}references/Equipe_preta.jpeg`,
   },
   {
-    eyebrow: "ALDEIA DA SERRA OPEN • CONVITE",
+    eyebrow: "ALDEIA DA SERRA OPEN 40+ • CONVITE",
     title: "Veja a energia do Open.",
     copy: "Acompanhe os vídeos da arena e venha viver esse dia com a gente.",
     video: "/references/video3.mp4",
-    poster:
-      "https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&w=1800&q=85",
+    poster: `${import.meta.env.BASE_URL}references/campeões.jpeg`,
+  },
+];
+
+const additionalSports = [
+  {
+    name: "Beach Tennis",
+    description: "Uma modalidade de raquete com progressão própria de pontos, games e sets.",
+    format: "Simples ou duplas, conforme as categorias habilitadas no evento.",
+    scoreboard: "Pontos do game, games, sets e tie-break ou formato decisivo configurado.",
+    matchData: "Sacador e sequência de saque, lado de quadra, trocas, interrupções e sanções.",
+    stats: "Sets, games e pontos ganhos/perdidos; aces e erros podem ser registrados como estatísticas opcionais.",
+    accent: "tennis",
+  },
+  {
+    name: "Beach Soccer",
+    description: "Uma modalidade de equipe com partidas organizadas por gols e períodos.",
+    format: "Elenco, escalação inicial, reservas, numeração e substituições segundo o regulamento.",
+    scoreboard: "Gols, período e relógio; tempo corrido, pausas e acréscimos conforme a regra adotada.",
+    matchData: "Gols, gols contra, pênaltis, faltas, cartões, substituições e interrupções.",
+    stats: "Gols, faltas, cartões e substituições; demais indicadores dependem do registro disponível.",
+    accent: "soccer",
   },
 ];
 
 const tournamentGames = [
-  { key: "J01", phase: "Chave A", group: "A", gameNumber: "01", time: "09:00", court: "Quadra 01", teamA: 1, teamB: 4 },
-  { key: "J02", phase: "Chave A", group: "A", gameNumber: "02", time: "09:20", court: "Quadra 01", teamA: 2, teamB: 3 },
-  { key: "J03", phase: "Chave A", group: "A", gameNumber: "03", time: "09:40", court: "Quadra 01", teamA: 0, teamB: 4 },
-  { key: "J04", phase: "Chave A", group: "A", gameNumber: "04", time: "10:00", court: "Quadra 01", teamA: 1, teamB: 2 },
-  { key: "J05", phase: "Chave B", group: "B", gameNumber: "05", time: "10:20", court: "Quadra 01", teamA: 5, teamB: 8 },
-  { key: "J06", phase: "Chave A", group: "A", gameNumber: "06", time: "10:40", court: "Quadra 01", teamA: 0, teamB: 3 },
-  { key: "J07", phase: "Chave A", group: "A", gameNumber: "07", time: "11:00", court: "Quadra 01", teamA: 4, teamB: 2 },
-  { key: "J08", phase: "Chave A", group: "A", gameNumber: "08", time: "11:20", court: "Quadra 01", teamA: 0, teamB: 1 },
-  { key: "J09", phase: "Chave A", group: "A", gameNumber: "09", time: "11:40", court: "Quadra 01", teamA: 3, teamB: 4, breakAfter: "ALMOÇO / INTERVALO — 12:00 ÀS 14:00" },
-  { key: "J10", phase: "Chave B", group: "B", gameNumber: "10", time: "14:00", court: "Quadra 01", teamA: 6, teamB: 9 },
-  { key: "J11", phase: "Chave B", group: "B", gameNumber: "11", time: "14:20", court: "Quadra 01", teamA: 7, teamB: 8 },
-  { key: "J12", phase: "Chave B", group: "B", gameNumber: "12", time: "14:40", court: "Quadra 01", teamA: 5, teamB: 9 },
-  { key: "J13", phase: "Chave A", group: "A", gameNumber: "13", time: "15:00", court: "Quadra 01", teamA: 0, teamB: 2 },
-  { key: "J14", phase: "Chave B", group: "B", gameNumber: "14", time: "15:20", court: "Quadra 01", teamA: 6, teamB: 7 },
-  { key: "J15", phase: "Chave B", group: "B", gameNumber: "15", time: "15:40", court: "Quadra 01", teamA: 9, teamB: 8 },
-  { key: "J16", phase: "Chave B", group: "B", gameNumber: "16", time: "16:00", court: "Quadra 01", teamA: 5, teamB: 7 },
-  { key: "J17", phase: "Chave A", group: "A", gameNumber: "17", time: "16:20", court: "Quadra 01", teamA: 3, teamB: 1 },
-  { key: "J18", phase: "Chave B", group: "B", gameNumber: "18", time: "16:40", court: "Quadra 01", teamA: 8, teamB: 6 },
-  { key: "J19", phase: "Chave B", group: "B", gameNumber: "19", time: "17:00", court: "Quadra 01", teamA: 9, teamB: 7 },
-  { key: "J20", phase: "Chave B", group: "B", gameNumber: "20", time: "17:20", court: "Quadra 01", teamA: 5, teamB: 6 },
-  { key: "J21", phase: "Semifinal", gameNumber: "21", time: "17:40", court: "Quadra 01", seedAGroup: "A", seedA: 1, seedBGroup: "B", seedB: 2 },
-  { key: "J22", phase: "Semifinal", gameNumber: "22", time: "18:00", court: "Quadra 01", seedAGroup: "B", seedA: 1, seedBGroup: "A", seedB: 2 },
+  { key: "J01", phase: "Fase classificatória", group: "A", gameNumber: "01", time: "08:30", court: "Quadra 01", teamA: 0, teamB: 1 },
+  { key: "J02", phase: "Fase classificatória", group: "B", gameNumber: "02", time: "08:50", court: "Quadra 01", teamA: 4, teamB: 5 },
+  { key: "J03", phase: "Fase classificatória", group: "A", gameNumber: "03", time: "09:10", court: "Quadra 01", teamA: 2, teamB: 3 },
+  { key: "J04", phase: "Fase classificatória", group: "B", gameNumber: "04", time: "09:30", court: "Quadra 01", teamA: 6, teamB: 7 },
+  { key: "J05", phase: "Fase classificatória", group: "A", gameNumber: "05", time: "09:50", court: "Quadra 01", teamA: 0, teamB: 2 },
+  { key: "J06", phase: "Fase classificatória", group: "B", gameNumber: "06", time: "10:10", court: "Quadra 01", teamA: 4, teamB: 6 },
+  { key: "J07", phase: "Fase classificatória", group: "A", gameNumber: "07", time: "10:30", court: "Quadra 01", teamA: 1, teamB: 3 },
+  { key: "J08", phase: "Fase classificatória", group: "B", gameNumber: "08", time: "10:50", court: "Quadra 01", teamA: 5, teamB: 7 },
+  { key: "J09", phase: "Fase classificatória", group: "A", gameNumber: "09", time: "11:10", court: "Quadra 01", teamA: 0, teamB: 3 },
+  { key: "J10", phase: "Fase classificatória", group: "B", gameNumber: "10", time: "11:30", court: "Quadra 01", teamA: 4, teamB: 7 },
+  { key: "J11", phase: "Fase classificatória", group: "A", gameNumber: "11", time: "11:50", court: "Quadra 01", teamA: 1, teamB: 2 },
+  { key: "J12", phase: "Fase classificatória", group: "B", gameNumber: "12", time: "12:10", court: "Quadra 01", teamA: 5, teamB: 6 },
+  { key: "J13", phase: "1ª semifinal", gameNumber: "13", time: "12:50", court: "Quadra 01", seedAGroup: "A", seedA: 1, seedBGroup: "B", seedB: 2 },
+  { key: "J14", phase: "2ª semifinal", gameNumber: "14", time: "13:10", court: "Quadra 01", seedAGroup: "A", seedA: 2, seedBGroup: "B", seedB: 1 },
+  { key: "J15", phase: "Disputa do 3º lugar", gameNumber: "15", time: "13:30", court: "Quadra 01", loserOf: ["J13", "J14"] },
+  { key: "J16", phase: "Final", gameNumber: "16", time: "13:50", court: "Quadra 01", winnerOf: ["J13", "J14"] },
 ];
 
 const resultForFixture = (records, key) => records.find((record) => record.fixture === key);
 
 const hasCompleteTeamRegistration = (registeredTeams) =>
-  registeredTeams.length === 10
+  registeredTeams.length === 8
   && registeredTeams.every((team) => Array.isArray(team.athletes) && team.athletes.length >= 4);
 
 const getTournamentStandings = (registeredTeams, matchRecords) => {
-  const teamsByName = registeredTeams.slice(0, 10).map((team, index) => ({
+  const teamsByName = registeredTeams.slice(0, 8).map((team, index) => ({
     ...team,
     seed: index + 1,
-    group: index < 5 ? "A" : "B",
+    group: index < 4 ? "A" : "B",
     played: 0,
     wins: 0,
     losses: 0,
@@ -112,7 +124,7 @@ const getTournamentStandings = (registeredTeams, matchRecords) => {
   const teamsByNameMap = new Map(teamsByName.map((team) => [team.name.toUpperCase(), team]));
 
   matchRecords
-    .filter((record) => /^J(?:0[1-9]|1[0-9]|20)$/.test(record.fixture))
+    .filter((record) => /^J(?:0[1-9]|1[0-2])$/.test(record.fixture))
     .forEach((record) => {
       const set = record.sets?.[0];
       const teamA = teamsByNameMap.get(record.teamA);
@@ -138,11 +150,10 @@ const getTournamentStandings = (registeredTeams, matchRecords) => {
   });
   const compareResults = (left, right) =>
     right.pointDiff - left.pointDiff ||
-    right.pointsFor - left.pointsFor ||
     left.seed - right.seed;
   const completedGames = new Set(
     matchRecords
-      .filter((record) => /^J(?:0[1-9]|1[0-9]|20)$/.test(record.fixture))
+      .filter((record) => /^J(?:0[1-9]|1[0-2])$/.test(record.fixture))
       .map((record) => record.fixture),
   );
   const standings = ["A", "B"].flatMap((group) => {
@@ -182,12 +193,26 @@ const createTournamentSchedule = (registeredTeams, matchRecords, activeFixtureKe
       a = teamA?.groupComplete ? teamA.name.toUpperCase() : null;
       b = teamB?.groupComplete ? teamB.name.toUpperCase() : null;
       waiting = "AGUARDANDO CLASSIFICAÇÃO DAS CHAVES";
+    } else if (game.loserOf) {
+      const semifinalRecords = game.loserOf
+        .map((fixture) => resultForFixture(matchRecords, fixture))
+        .filter(Boolean);
+      a = semifinalRecords[0]?.loser?.toUpperCase() || null;
+      b = semifinalRecords[1]?.loser?.toUpperCase() || null;
+      waiting = "AGUARDANDO OS RESULTADOS DAS SEMIFINAIS";
+    } else if (game.winnerOf) {
+      const semifinalRecords = game.winnerOf
+        .map((fixture) => resultForFixture(matchRecords, fixture))
+        .filter(Boolean);
+      a = semifinalRecords[0]?.winner?.toUpperCase() || null;
+      b = semifinalRecords[1]?.winner?.toUpperCase() || null;
+      waiting = "AGUARDANDO OS RESULTADOS DAS SEMIFINAIS";
     }
 
     const record = resultForFixture(matchRecords, game.key);
     const colorA = teamsByName.get(a)?.color || "#8a929a";
     const colorB = teamsByName.get(b)?.color || "#8a929a";
-    const canPlay = registeredTeams.length === 10 && Boolean(a && b);
+    const canPlay = registeredTeams.length === 8 && Boolean(a && b);
 
     return {
       ...game,
@@ -203,7 +228,7 @@ const createTournamentSchedule = (registeredTeams, matchRecords, activeFixtureKe
           : canPlay
             ? "A SEGUIR"
             : game.teamA !== undefined
-              ? "AGUARDANDO 10 EQUIPES"
+              ? "AGUARDANDO 8 EQUIPES"
               : waiting,
       score: record?.sets?.map((set) => `${set.a} — ${set.b}`).join(" / ") || null,
       winner: record?.winner || null,
@@ -213,7 +238,7 @@ const createTournamentSchedule = (registeredTeams, matchRecords, activeFixtureKe
   return { matches, standings };
 };
 
-const getSetTarget = (setNumber = 1) => (setNumber === 3 ? 15 : 21);
+const getSetTarget = () => 15;
 
 const winnerAtScore = (currentScore, setNumber = 1) => {
   const target = getSetTarget(setNumber);
@@ -224,16 +249,39 @@ const winnerAtScore = (currentScore, setNumber = 1) => {
 
 const initialPosts = [
   {
-    image:
-      "https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&w=700&q=80",
+    image: `${import.meta.env.BASE_URL}references/arena.jpeg`,
     label: "ALDEIA DA SERRA OPEN",
-    text: "O sol já nasceu por aqui. Hoje tem muita bola no alto.",
+    text: "Vôlei de areia, competição e torcida na Aldeia da Serra.",
   },
   {
-    image:
-      "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=700&q=80",
-    label: "BASTIDORES",
-    text: "Aquecimento liberado. Vem sentir essa energia com a gente.",
+    image: `${import.meta.env.BASE_URL}references/campeões.jpeg`,
+    label: "PÓDIO NA AREIA",
+    text: "Uma lembrança da competição que já aconteceu.",
+  },
+  {
+    image: `${import.meta.env.BASE_URL}references/Equipe_preta.jpeg`,
+    label: "EQUIPE NA AREIA",
+    text: "Vôlei de areia no Condomínio Aldeia da Serra.",
+  },
+];
+
+const legacyGalleryImages = new Map([
+  [
+    "https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&w=700&q=80",
+    initialPosts[0].image,
+  ],
+  [
+    "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=700&q=80",
+    initialPosts[1].image,
+  ],
+]);
+
+const previousTournaments = [
+  {
+    name: "Aldeia da Serra Open",
+    category: "Vôlei de areia 4x4",
+    date: "10 OUT 2026",
+    image: `${import.meta.env.BASE_URL}references/campeões.jpeg`,
   },
 ];
 
@@ -244,32 +292,102 @@ const musicTracks = [
 ];
 
 const initialUsers = [
-  { id: "admin-inicial", name: "Administrador", username: "admin", password: "admin", role: "admin" },
+  { id: "admin-inicial", name: "Administrador", username: "admin", password: "admin", role: "admin", mustChangePassword: true },
 ];
 
-const initialRegulation = `TORNEIO DE VÔLEI DE AREIA 4 x 4 — CONDOMÍNIO RESIDENCIAL ALDEIA DA SERRA
+const passwordSecurityKey = "aldeia-serra-open-password-security-v1";
 
-FORMATO DA PARTIDA
-• Os jogos serão disputados em melhor de 3 sets, sendo dois sets de 21 pontos e o set de desempate de 15.
-• Cada set tem limite fixo: os dois primeiros encerram quando uma equipe atinge 21 pontos e o terceiro quando uma equipe atinge 15, sem vantagem mínima.
-• Ao fim de cada set não decisivo, o próximo começa automaticamente. A partida termina quando uma equipe vence dois sets.
-• Cada equipe tem direito a um pedido de tempo por set e pode inscrever até 4 titulares e 2 reservas, conforme a súmula adaptada.
+const validateStrongPassword = (password) =>
+  password.length >= 10
+  && /[A-Z]/.test(password)
+  && /[a-z]/.test(password)
+  && /\d/.test(password)
+  && /[^A-Za-z0-9]/.test(password);
 
-COMPETIÇÃO
-• A fase classificatória será disputada em duas chaves de cinco equipes, seguindo a tabela oficial, sem sorteio.
-• As duas melhores equipes de cada chave avançam às semifinais.
-• A classificação de cada chave considera vitórias, saldo de pontos, pontos marcados e posição inicial na tabela.
-• As semifinais são preenchidas automaticamente após o registro dos 20 resultados da fase de chaves.
+const hashPassword = async (password, salt) => {
+  const actualSalt = salt || Array.from(window.crypto.getRandomValues(new Uint8Array(16)))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+  const encoder = new TextEncoder();
+  const key = await window.crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"],
+  );
+  const bits = await window.crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt: encoder.encode(actualSalt),
+      iterations: 120000,
+      hash: "SHA-256",
+    },
+    key,
+    256,
+  );
+  return {
+    salt: actualSalt,
+    hash: Array.from(new Uint8Array(bits)).map((byte) => byte.toString(16).padStart(2, "0")).join(""),
+  };
+};
 
-CONDUTA E ARBITRAGEM
-• A decisão da arbitragem prevalece. O mesário registra os pontos, os sets, os tempos, sanções e ocorrências.
-• As equipes devem estar prontas no horário. Atrasos e ausência podem resultar em W.O., conforme decisão da organização.
-• Casos omissos serão resolvidos pela organização do torneio.
+const initialTeams40Plus = [
+  { name: "TIME A", color: "#1564f5", athletes: ["Fred", "Cícero", "Michele Alvarenga", "Andresa"] },
+  { name: "TIME B", color: "#ef4444", athletes: ["Flávio Batata", "Marcelo", "Aline Carneiro", "Andrea"] },
+  { name: "TIME C", color: "#22c55e", athletes: ["Anderson", "Tárcio", "Elisângela", "Fran"] },
+  { name: "TIME D", color: "#f59e0b", athletes: ["Regy", "Ricardo Carneiro", "Lucilainy", "Michele Caldrone"] },
+  { name: "TIME E", color: "#8b5cf6", athletes: ["André", "Janilson", "Marília", "Maíra"] },
+  { name: "TIME F", color: "#06b6d4", athletes: ["Alessandro", "William", "Aline", "Márcia"] },
+  { name: "TIME G", color: "#ec4899", athletes: ["Agis", "Kátia", "Gil", "Ana Paula"] },
+  { name: "TIME H", color: "#111827", athletes: ["Heraldo", "Stela", "Elísio", "Roberta"] },
+];
+
+const initialRegulation = `1º CAMPEONATO • QUARTETOS MISTOS • VÔLEI DE AREIA 40+
+Condomínio Aldeia da Serra • início às 8h • todos os atletas presentes às 8h
+
+COMPOSIÇÃO DAS EQUIPES
+• Oito equipes em dois grupos de quatro.
+• Cada quarteto deve ter dois homens e duas mulheres.
+
+FORMATO DA COMPETIÇÃO
+• Fase classificatória: todos jogam entre si no grupo. Cada jogo será em melhor de três sets de 15 pontos.
+• Os dois melhores de cada grupo avançam às semifinais.
+• 13º jogo: 1º do Grupo 1 × 2º do Grupo 2.
+• 14º jogo: 2º do Grupo 1 × 1º do Grupo 2.
+• 15º jogo: disputa do 3º lugar entre os perdedores das semifinais.
+• 16º jogo: final entre os vencedores das semifinais.
+• Semifinais, disputa do 3º lugar e final serão em melhor de três sets de 15 pontos.
+
+CRITÉRIOS DE DESEMPATE
+• 1º maior número de vitórias.
+• 2º maior saldo de pontos.
+• 3º confronto direto.
+
+REGRAS DOS JOGOS
+• Aplicam-se as regras do vôlei de quadra.
+• Como não há linha central, a invasão por baixo só será marcada se atrapalhar ou impedir a ação da equipe adversária.
+• Rodízio de saque obrigatório e rodízio de posições dispensado.
+• Cada equipe tem direito a um tempo de um minuto por partida.
+• Troca de lado a cada sete pontos somados no placar.
+
+ESTRUTURA E ORGANIZAÇÃO
+• Haverá uma única quadra e os grupos serão alternados na fase classificatória.
+• As equipes devem acompanhar a ordem dos jogos.
+• Aquecimento de rede e saque somente antes da primeira partida de cada equipe.
+• Poderá haver jogos sob sol ou chuva, conforme as condições de segurança.
+
+LOCAL E HORÁRIO
+• Condomínio Aldeia da Serra.
+• Todos os atletas deverão estar presentes às 8h.
+
+PREMIAÇÃO
+• Medalhas de ouro, prata e bronze para o 1º, 2º e 3º lugares.
 
 Este regulamento pode ser atualizado pela organização. A versão publicada nesta página é a válida para a competição.`;
 
 const emptyMatchSheet = {
-  date: "2026-10-10",
+  date: "2026-11-20",
   court: "Quadra 01",
   gameNumber: "",
   category: "Misto",
@@ -289,6 +407,7 @@ function App() {
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [adminOpen, setAdminOpen] = useState(false);
   const [adminView, setAdminView] = useState("publish");
+  const [reportType, setReportType] = useState("championship");
   const [login, setLogin] = useState(false);
   const [posts, setPosts] = useState(initialPosts);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -337,30 +456,45 @@ function App() {
   const [effectPlaying, setEffectPlaying] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const fileInput = useRef(null);
-  const [registeredTeams, setRegisteredTeams] = useState([]);
+  const [registeredTeams, setRegisteredTeams] = useState(initialTeams40Plus);
   const [users, setUsers] = useState(initialUsers);
   const [currentUser, setCurrentUser] = useState(null);
   const [loginUsername, setLoginUsername] = useState("admin");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [loginFailedCount, setLoginFailedCount] = useState(() => {
+    try {
+      return Number(JSON.parse(localStorage.getItem(passwordSecurityKey) || "{}").failedCount) || 0;
+    } catch {
+      return 0;
+    }
+  });
+  const [loginLockUntil, setLoginLockUntil] = useState(() => {
+    try {
+      return Number(JSON.parse(localStorage.getItem(passwordSecurityKey) || "{}").lockUntil) || 0;
+    } catch {
+      return 0;
+    }
+  });
   const [regulation, setRegulation] = useState(initialRegulation);
   const [matchSheets, setMatchSheets] = useState({});
   const [newUser, setNewUser] = useState({ name: "", username: "", password: "", role: "mesario" });
   const [passwordChange, setPasswordChange] = useState({ current: "", next: "" });
+  const [forcePasswordChange, setForcePasswordChange] = useState(false);
   const [newTeam, setNewTeam] = useState({ name: "", color: "#1564f5", athletes: "" });
   const [newAthlete, setNewAthlete] = useState({ name: "", team: "" });
 
   const [simConfig, setSimConfig] = useState({
-    pontuacaoBase: 21,
-    teto: 21,
+    pontuacaoBase: 15,
+    teto: 15,
     setsPorPartida: 3,
     pontuacaoSetDecisivo: 15,
     intervaloEntreSets: 3,
     intervaloEntreJogos: 5,
     jogoAlmoco: 10,
     tempoAlmoco: 120,
-    numeroJogos: 22,
-    horarioInicio: "09:00",
+    numeroJogos: 16,
+    horarioInicio: "08:30",
     horarioLimite: "18:00",
     segundosPorPontoMin: 20,
     segundosPorPontoMax: 32,
@@ -527,7 +661,8 @@ function App() {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
       if (saved) {
-        const savedTeams = (saved.registeredTeams || []).map((team) => ({
+        const storedTeams = Array.isArray(saved.registeredTeams) ? saved.registeredTeams : [];
+        const savedTeams = (storedTeams.length === 8 ? storedTeams : initialTeams40Plus).map((team) => ({
           ...team,
           ...(team.name.toUpperCase() === "MARROM" ? { name: "Marrom / Azul-marinho" } : {}),
           athletes: Array.isArray(team.athletes) ? team.athletes : [],
@@ -588,9 +723,18 @@ function App() {
         if (!currentTournament) setPauseStartedAt("");
         if (saved.serveAdvantage !== undefined && currentTournament) setServeAdvantage(saved.serveAdvantage);
         if (saved.rallies !== undefined) setRallies(saved.rallies);
-        if (saved.posts) setPosts(saved.posts);
-        if (saved.users?.length) setUsers(saved.users);
-        if (saved.regulation && !/Melhor de 3 sets|grupos sorteados|melhores perdedores|repescagem/i.test(saved.regulation)) setRegulation(saved.regulation);
+        if (Array.isArray(saved.posts)) {
+          setPosts(saved.posts.map((post) => ({
+            ...post,
+            image: legacyGalleryImages.get(post.image) || post.image,
+          })));
+        }
+        if (saved.users?.length) setUsers(saved.users.map((user) =>
+          user.id === "admin-inicial"
+            ? { ...user, mustChangePassword: user.password === "admin" || user.mustChangePassword }
+            : user,
+        ));
+        if (saved.regulation && !/set único|Melhor de 3 sets.*21|grupos sorteados|melhores perdedores|repescagem/i.test(saved.regulation)) setRegulation(saved.regulation);
         if (saved.matchSheets) setMatchSheets(saved.matchSheets);
         if (saved.scoringRule) {
           setScoringRule(saved.scoringRule);
@@ -630,6 +774,61 @@ function App() {
     athletes: [],
   };
   const standings = getTournamentStandings(registeredTeams, matchRecords);
+  const reportTeamStats = registeredTeams.map((team) => {
+    const teamName = team.name.toUpperCase();
+    const teamMatches = matchRecords.filter((record) =>
+      record.teamA === teamName || record.teamB === teamName,
+    );
+    let pointsFor = 0;
+    let pointsAgainst = 0;
+    let wins = 0;
+    let losses = 0;
+    let durationMs = 0;
+    teamMatches.forEach((record) => {
+      const isTeamA = record.teamA === teamName;
+      (record.sets || []).forEach((set) => {
+        pointsFor += Number(isTeamA ? set.a : set.b) || 0;
+        pointsAgainst += Number(isTeamA ? set.b : set.a) || 0;
+      });
+      if (record.winner === teamName) wins += 1;
+      else if (record.loser === teamName || record.teamA === teamName || record.teamB === teamName) losses += 1;
+      durationMs += Number(record.durationMs) || 0;
+    });
+    return {
+      ...team,
+      nameUpper: teamName,
+      played: teamMatches.length,
+      wins,
+      losses,
+      pointsFor,
+      pointsAgainst,
+      pointDiff: pointsFor - pointsAgainst,
+      durationMs,
+    };
+  }).sort((left, right) =>
+    right.wins - left.wins ||
+    right.pointDiff - left.pointDiff ||
+    right.pointsFor - left.pointsFor ||
+    left.name.localeCompare(right.name),
+  );
+  const recordedMatchDurations = matchRecords
+    .filter((record) => Number(record.durationMs) > 0)
+    .map((record) => ({ ...record, durationMs: Number(record.durationMs) }));
+  const shortestMatch = recordedMatchDurations.length
+    ? recordedMatchDurations.reduce((best, record) => record.durationMs < best.durationMs ? record : best)
+    : null;
+  const longestMatch = recordedMatchDurations.length
+    ? recordedMatchDurations.reduce((best, record) => record.durationMs > best.durationMs ? record : best)
+    : null;
+  const maxTeamPoints = reportTeamStats.reduce((best, team) =>
+    team.pointsFor > (best?.pointsFor || -1) ? team : best,
+  null);
+  const maxTeamPointsValue = maxTeamPoints?.pointsFor || 0;
+  const formatReportDuration = (durationMs) => {
+    const totalMinutes = Math.max(0, Math.floor((durationMs || 0) / 60000));
+    const seconds = Math.max(0, Math.floor(((durationMs || 0) % 60000) / 1000));
+    return `${String(totalMinutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
   const activeMatchRecord = matchRecords.find((record) => record.fixture === activeFixtureKey);
   const matchStartedTimestamp = matchStartedAt ? Date.parse(matchStartedAt) : null;
   const activePauseStartedTimestamp = pauseStartedAt ? Date.parse(pauseStartedAt) : null;
@@ -735,6 +934,7 @@ function App() {
     if (!pendingSet || !activeFixtureKey || matchFinished) return;
     const finishedAt = pendingSet.endedAt || new Date().toISOString();
     const winner = pendingSet.winner === "a" ? activeMatch.a : activeMatch.b;
+    const loser = pendingSet.winner === "a" ? activeMatch.b : activeMatch.a;
     const fixture = scheduledMatches.find((match) => match.key === activeFixtureKey);
     const completedSets = [...setResults];
     if (!completedSets.some((setResult) => setResult.number === pendingSet.number)) {
@@ -768,6 +968,7 @@ function App() {
       sets: completedSets,
       finalSets,
       winner,
+      loser,
       timeoutsUsed,
     };
     const nextRecords = [record, ...matchRecords];
@@ -846,8 +1047,8 @@ function App() {
   const loadMatch = (fixture) => {
     if (!fixture) return;
     if (matchStarted && !matchFinished && fixture.key === activeFixtureKey) return;
-    if (!registeredTeams || registeredTeams.length !== 10) {
-      window.alert("A tabela oficial exige exatamente 10 equipes cadastradas.");
+    if (!registeredTeams || registeredTeams.length !== 8) {
+      window.alert("A tabela oficial exige exatamente 8 equipes cadastradas.");
       return;
     }
     if (!fixture.a || !fixture.b || fixture.status === "FINALIZADO" || fixture.status.startsWith("AGUARDANDO")) {
@@ -1003,14 +1204,56 @@ function App() {
     setLoginError("");
   };
 
-  const authenticate = () => {
-    const user = users.find((candidate) => candidate.username.toLowerCase() === loginUsername.trim().toLowerCase() && candidate.password === loginPassword);
-    if (!user) {
-      setLoginError("Usuário ou senha inválidos.");
+  const authenticate = async () => {
+    if (loginLockUntil > Date.now()) {
+      const remainingMinutes = Math.ceil((loginLockUntil - Date.now()) / 60000);
+      setLoginError(`Acesso temporariamente bloqueado por ${remainingMinutes} minuto(s).`);
       return;
     }
-    setCurrentUser({ id: user.id, name: user.name, username: user.username, role: user.role });
-    setAdminView(user.role === "organizador" ? "table" : user.role === "publicador" ? "photos" : "sheet");
+    const user = users.find((candidate) =>
+      candidate.username.toLowerCase() === loginUsername.trim().toLowerCase(),
+    );
+    let authenticated = false;
+    if (user?.passwordHash && user?.passwordSalt) {
+      const derived = await hashPassword(loginPassword, user.passwordSalt);
+      authenticated = derived.hash === user.passwordHash;
+    } else if (user) {
+      authenticated = user.password === loginPassword;
+    }
+    if (!authenticated) {
+      const nextFailedCount = loginFailedCount + 1;
+      const lockUntil = nextFailedCount >= 5 ? Date.now() + 15 * 60 * 1000 : 0;
+      setLoginFailedCount(nextFailedCount);
+      setLoginLockUntil(lockUntil);
+      localStorage.setItem(passwordSecurityKey, JSON.stringify({
+        failedCount: nextFailedCount,
+        lockUntil,
+      }));
+      setLoginError(lockUntil
+        ? "Acesso bloqueado por 15 minutos após 5 tentativas inválidas."
+        : "Usuário ou senha inválidos.");
+      return;
+    }
+    let securedUser = user;
+    if (!user.passwordHash || !user.passwordSalt) {
+      const securedPassword = await hashPassword(loginPassword);
+      securedUser = {
+        ...user,
+        passwordHash: securedPassword.hash,
+        passwordSalt: securedPassword.salt,
+        passwordHistory: [securedPassword.hash],
+        password: undefined,
+      };
+      setUsers((current) => current.map((candidate) =>
+        candidate.id === user.id ? securedUser : candidate,
+      ));
+    }
+    setLoginFailedCount(0);
+    setLoginLockUntil(0);
+    localStorage.setItem(passwordSecurityKey, JSON.stringify({ failedCount: 0, lockUntil: 0 }));
+    setCurrentUser({ id: securedUser.id, name: securedUser.name, username: securedUser.username, role: securedUser.role });
+    setForcePasswordChange(Boolean(securedUser.mustChangePassword));
+    setAdminView(securedUser.role === "organizador" ? "table" : securedUser.role === "publicador" ? "photos" : securedUser.role === "admin" ? "users" : "sheet");
     setLogin(false);
     setLoginPassword("");
     setLoginError("");
@@ -1020,19 +1263,40 @@ function App() {
     setCurrentUser(null);
     setAdminOpen(false);
     setLogin(false);
+    setForcePasswordChange(false);
+    setPasswordChange({ current: "", next: "" });
   };
 
+  useEffect(() => {
+    if (!currentUser) return undefined;
+    const inactivityLimitMs = 30 * 60 * 1000;
+    let inactivityTimer = window.setTimeout(() => logout(), inactivityLimitMs);
+    const resetInactivityTimer = () => {
+      window.clearTimeout(inactivityTimer);
+      inactivityTimer = window.setTimeout(() => logout(), inactivityLimitMs);
+    };
+    ["mousemove", "keydown", "pointerdown", "touchstart"].forEach((eventName) =>
+      window.addEventListener(eventName, resetInactivityTimer),
+    );
+    return () => {
+      window.clearTimeout(inactivityTimer);
+      ["mousemove", "keydown", "pointerdown", "touchstart"].forEach((eventName) =>
+        window.removeEventListener(eventName, resetInactivityTimer),
+      );
+    };
+  }, [currentUser]);
+
   const allowedAdminViews = currentUser?.role === "admin"
-    ? ["sheet", "table", "regulation", "teams", "users", "photos", "simula"]
+    ? ["sheet", "table", "regulation", "teams", "users", "photos", "simula", "reports"]
     : currentUser?.role === "mesario"
       ? ["sheet"]
       : currentUser?.role === "organizador"
-        ? ["table", "regulation", "teams", "simula"]
+        ? ["table", "regulation", "teams", "simula", "reports"]
         : currentUser?.role === "publicador"
           ? ["photos"]
           : [];
 
-  const createUser = (event) => {
+  const createUser = async (event) => {
     event.preventDefault();
     const username = newUser.username.trim();
     if (!newUser.name.trim() || !username || !newUser.password) return;
@@ -1040,24 +1304,56 @@ function App() {
       window.alert("Este usuário já existe.");
       return;
     }
-    setUsers((current) => [...current, { ...newUser, id: `user-${Date.now()}`, name: newUser.name.trim(), username }]);
+    if (!validateStrongPassword(newUser.password)) {
+      window.alert("A senha deve ter 10 caracteres, com maiúscula, minúscula, número e símbolo.");
+      return;
+    }
+    const securedPassword = await hashPassword(newUser.password);
+    setUsers((current) => [...current, {
+      id: `user-${Date.now()}`,
+      name: newUser.name.trim(),
+      username,
+      role: newUser.role,
+      passwordHash: securedPassword.hash,
+      passwordSalt: securedPassword.salt,
+      passwordHistory: [securedPassword.hash],
+    }]);
     setNewUser({ name: "", username: "", password: "", role: "mesario" });
   };
 
-  const changeOwnPassword = (event) => {
+  const changeOwnPassword = async (event) => {
     event.preventDefault();
     const user = users.find((candidate) => candidate.id === currentUser.id);
-    if (!user || user.password !== passwordChange.current) {
+    let currentPasswordMatches = user?.password === passwordChange.current;
+    if (user?.passwordHash && user?.passwordSalt) {
+      const derived = await hashPassword(passwordChange.current, user.passwordSalt);
+      currentPasswordMatches = derived.hash === user.passwordHash;
+    }
+    if (!user || !currentPasswordMatches) {
       window.alert("A senha atual não confere.");
       return;
     }
-    if (passwordChange.next.trim().length < 4) {
-      window.alert("A nova senha precisa ter pelo menos 4 caracteres.");
+    if (!validateStrongPassword(passwordChange.next)) {
+      window.alert("A nova senha deve ter 10 caracteres, com maiúscula, minúscula, número e símbolo.");
       return;
     }
-    setUsers((current) => current.map((candidate) => candidate.id === currentUser.id ? { ...candidate, password: passwordChange.next } : candidate));
+    const securedPassword = await hashPassword(passwordChange.next);
+    const history = [...(user.passwordHistory || (user.passwordHash ? [user.passwordHash] : []))];
+    if (history.includes(securedPassword.hash)) {
+      window.alert("Esta senha já foi utilizada. Escolha uma senha diferente.");
+      return;
+    }
+    setUsers((current) => current.map((candidate) => candidate.id === currentUser.id ? {
+      ...candidate,
+      password: undefined,
+      passwordHash: securedPassword.hash,
+      passwordSalt: securedPassword.salt,
+      passwordHistory: [...history, securedPassword.hash].slice(-5),
+      mustChangePassword: false,
+    } : candidate));
     setPasswordChange({ current: "", next: "" });
-    window.alert("Senha atualizada neste dispositivo.");
+    setForcePasswordChange(false);
+    window.alert("Senha atualizada com sucesso.");
   };
 
   const createTeam = (event) => {
@@ -1068,8 +1364,8 @@ function App() {
       window.alert("O cadastro fica bloqueado após o início do primeiro jogo.");
       return;
     }
-    if (registeredTeams.length >= 10) {
-      window.alert("A tabela oficial tem exatamente 10 vagas para equipes.");
+    if (registeredTeams.length >= 8) {
+      window.alert("A tabela oficial tem exatamente 8 vagas para equipes.");
       return;
     }
     if (registeredTeams.some((team) => team.name.toLowerCase() === name.toLowerCase())) {
@@ -1123,6 +1419,23 @@ function App() {
       setActiveMatch({ a: "A DEFINIR", b: "A DEFINIR" });
     }
     setNewAthlete((current) => current.team === name ? { ...current, team: nextTeams[0]?.name || "" } : current);
+  };
+
+  const updateTeam = (teamName, changes) => {
+    if (matchStarted || matchRecords.length) {
+      window.alert("A cor e o nome das equipes ficam bloqueados durante o torneio.");
+      return;
+    }
+    const nextTeams = registeredTeams.map((team) =>
+      team.name === teamName ? { ...team, ...changes } : team,
+    );
+    setRegisteredTeams(nextTeams);
+    setNewAthlete((current) =>
+      current.team === teamName ? { ...current, team: changes.name || teamName } : current,
+    );
+    if (schedulePublished) {
+      setScheduledMatches(createTournamentSchedule(nextTeams, matchRecords, null).matches);
+    }
   };
 
   const createAthlete = (event) => {
@@ -1190,7 +1503,7 @@ function App() {
       return;
     }
     if (!hasCompleteTeamRegistration(registeredTeams)) {
-      window.alert("Cadastre 10 equipes e pelo menos 4 atletas em cada uma antes de gerar a tabela.");
+      window.alert("Cadastre 8 equipes e pelo menos 4 atletas em cada uma antes de gerar a tabela.");
       return;
     }
     const nextSchedule = createTournamentSchedule(registeredTeams, [], null).matches;
@@ -1332,6 +1645,8 @@ function App() {
         <nav className="main-nav" aria-label="Navegação principal">
           <a href="#jogos">Jogos</a>
           <a href="#classificacao">Classificação</a>
+          <a href="#torneios-anteriores">Torneios anteriores</a>
+          <a href="#modalidades">Modalidades</a>
           <a href="#regulamento">Regulamento</a>
           <a href="#galeria">Galeria</a>
         </nav>
@@ -1377,7 +1692,7 @@ function App() {
             </div>
           </div>
           <div className="hero-bottom">
-            <span>10 OUT 2026</span>
+            <span>SEX 20 NOV 2026</span>
             <a
               className="hero-location location-link"
               href="https://loteamentoaldeiadaserra.com"
@@ -1402,17 +1717,17 @@ function App() {
         </section>
 
         <section className="ticker">
-          <div className="ticker-label"><span className={`live-dot ${matchStarted && !matchFinished ? "" : "is-idle"}`} /> {matchStarted && !matchFinished ? "PARTIDA AO VIVO" : matchFinished ? "ÚLTIMO RESULTADO" : "PRÓXIMO JOGO"}</div>
+          <div className="ticker-label"><span className={`live-dot ${matchStarted && !matchFinished ? "" : "is-idle"}`} /> {matchStarted && !matchFinished ? "PARTIDA AO VIVO" : matchFinished ? "ÚLTIMO RESULTADO" : "PRÓXIMO EVENTO"}</div>
           {activeFixture ? (
             <div className="ticker-match"><strong>JOGO {activeFixture.gameNumber} · {activeFixture.group ? `CHAVE ${activeFixture.group}` : activeFixture.phase} · {activeFixture.time}</strong><span>{activeMatch.a} <b>{score.a}</b></span><span className="ticker-vs">×</span><span>{activeMatch.b} <b>{score.b}</b></span></div>
-          ) : <div className="ticker-match"><strong>A tabela será publicada após o cadastro de 10 equipes com pelo menos 4 atletas cada.</strong></div>}
+          ) : <div className="ticker-match"><strong>TORNEIO 40+ · SEXTA-FEIRA, 20 DE NOVEMBRO DE 2026</strong></div>}
           <a href="#sumula">Acompanhar partida <ArrowUpRight size={15} /></a>
         </section>
 
         <section className="section schedule-section" id="jogos">
           <div className="section-heading">
             <div><p className="section-kicker">TABELA DE JOGOS</p><h2>O próximo ponto<br /><i>começa agora.</i></h2></div>
-              <div className="date-switcher"><button>‹</button><span><small>DATA DO TORNEIO</small> 10 OUT 2026</span><button>›</button></div>
+              <div className="date-switcher"><button>‹</button><span><small>TORNEIO 40+</small> 20 NOV 2026</span><button>›</button></div>
           </div>
           {scheduledMatches.length ? <div className="match-list">
             {scheduledMatches.map((match) => (
@@ -1459,14 +1774,14 @@ function App() {
                 {match.breakAfter && <div className="schedule-break"><strong>🍽️ {match.breakAfter}</strong></div>}
               </div>
             ))}
-          </div> : <div className="schedule-empty-state">A tabela será disponibilizada após o cadastro de 10 equipes com pelo menos 4 atletas cada e a geração pelo painel administrativo.</div>}
+          </div> : <div className="schedule-empty-state">A tabela será disponibilizada após o cadastro de 8 equipes com pelo menos 4 atletas cada e a geração pelo painel administrativo.</div>}
           {scheduledMatches.length > 0 && <a className="under-link" href="#jogos">
             Ver tabela completa <ArrowUpRight size={15} />
           </a>}
           <div className="tournament-standings">
             <div className="tournament-standings-heading">
               <div><p className="section-kicker">CLASSIFICAÇÃO</p><h3>Chaves e <i>semifinalistas.</i></h3></div>
-              <span>{new Set(matchRecords.filter((record) => /^J(?:0[1-9]|1[0-9]|20)$/.test(record.fixture)).map((record) => record.fixture)).size}/20 jogos das chaves</span>
+              <span>{new Set(matchRecords.filter((record) => /^J(?:0[1-9]|1[0-2])$/.test(record.fixture)).map((record) => record.fixture)).size}/12 jogos das chaves</span>
             </div>
             <div className="standings-table-wrap">
               <table className="standings-table">
@@ -1512,7 +1827,7 @@ function App() {
               </div>
               <div className="match-meta">
                 <span className={`live-dot ${matchStarted && !matchFinished ? "" : "is-idle"}`} /> {resting ? "TEMPO PEDIDO" : matchStarted && !matchFinished ? "AO VIVO" : matchFinished ? "PARTIDA ENCERRADA" : "AGUARDANDO INÍCIO"}
-                <small>JOGO {activeFixture?.gameNumber || "01"} · {activeFixture?.group ? `CHAVE ${activeFixture.group}` : activeFixture?.phase?.toUpperCase() || "CHAVE A"} · {activeFixture?.time || "09:00"} · {activeFixture?.court || "QUADRA 01"}</small>
+                <small>JOGO {activeFixture?.gameNumber || "01"} · {activeFixture?.group ? `CHAVE ${activeFixture.group}` : activeFixture?.phase?.toUpperCase() || "CHAVE A"} · {activeFixture?.time || "08:30"} · {activeFixture?.court || "QUADRA 01"}</small>
               </div>
               <button className="records-button" onClick={() => setRecordsOpen(true)}>
                 <History size={16} /> Histórico ({matchRecords.length})
@@ -1585,7 +1900,7 @@ function App() {
               </div>
               <div className="scoreboard-score">
                 <div className="set-score">
-                  <span>MELHOR DE 3 SETS • LIMITE 21/21/15</span>
+                  <span>MELHOR DE 3 SETS • TODOS OS SETS EM 15 PONTOS</span>
                   {matchFinished && <b>{sets.a >= 2 ? activeMatch.a : activeMatch.b} VENCEU</b>}
                 </div>
                 <div className="point-score">
@@ -1792,12 +2107,12 @@ function App() {
                 <i>levar o troféu?</i>
               </h2>
               <p className="standings-copy">
-                São duas chaves de cinco equipes. As duas melhores de cada
+                São dois grupos de quatro equipes. Os dois melhores de cada
                 grupo avançam às semifinais.
               </p>
               <div className="public-rule">
                 <strong>CRITÉRIOS DE DESEMPATE</strong>
-                <span>Vitórias · saldo de pontos · pontos marcados · ordem inicial da tabela</span>
+                <span>Vitórias · saldo de pontos · confronto direto · posição inicial</span>
               </div>
               <a className="button button-outline" href="#classificacao">
                 Ver classificação <ArrowUpRight size={17} />
@@ -1829,6 +2144,33 @@ function App() {
                 26
               </span>
             </div>
+          </div>
+        </section>
+
+        <section className="section previous-tournaments" id="torneios-anteriores">
+          <div className="section-heading">
+            <div>
+              <p className="section-kicker">MEMÓRIAS DA AREIA</p>
+              <h2>Torneios<br /><i>anteriores.</i></h2>
+            </div>
+            <p className="previous-tournaments-intro">
+              Relembre as competições que já passaram pela Aldeia da Serra.
+            </p>
+          </div>
+          <div className="previous-tournament-grid">
+            {previousTournaments.map((tournament) => (
+              <article className="previous-tournament-card" key={tournament.name}>
+                <img src={tournament.image} alt="Equipe campeã de vôlei de areia na Aldeia da Serra" />
+                <div className="previous-tournament-content">
+                  <span>{tournament.date} · {tournament.category}</span>
+                  <h3>{tournament.name}</h3>
+                  <p>Competição realizada no Condomínio Aldeia da Serra, em Luziânia.</p>
+                  <a className="under-link" href="#galeria">
+                    Ver registros do evento <ArrowUpRight size={15} />
+                  </a>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -1871,6 +2213,40 @@ function App() {
             </div>
             <div className="gallery-controls"><button onClick={() => setGalleryIndex((current) => (current - 1 + posts.length) % posts.length)} aria-label="Fotos anteriores"><ChevronLeft size={17} /></button><span>{String((galleryIndex % posts.length) + 1).padStart(2, "0")} / {String(posts.length).padStart(2, "0")}</span><button onClick={() => setGalleryIndex((current) => (current + 1) % posts.length)} aria-label="Próximas fotos"><ChevronRight size={17} /></button></div>
           </div>
+        </section>
+
+        <section className="section sports-section" id="modalidades">
+          <div className="section-heading">
+            <div>
+              <p className="section-kicker">NOVAS MODALIDADES</p>
+              <h2>Mais esportes,<br /><i>regras próprias.</i></h2>
+            </div>
+            <p className="sports-intro">
+              Cada modalidade tem composição, pontuação e súmula específicas. Os formatos
+              são definidos pelo regulamento de cada evento.
+            </p>
+          </div>
+          <div className="sports-grid">
+            {additionalSports.map((sport, index) => (
+              <article className={`sport-card sport-card-${sport.accent}`} key={sport.name}>
+                <div className="sport-card-heading">
+                  <span>0{index + 1} / MODALIDADE</span>
+                  <strong>{sport.name}</strong>
+                  <p>{sport.description}</p>
+                </div>
+                <dl className="sport-details">
+                  <div><dt>Formato e composição</dt><dd>{sport.format}</dd></div>
+                  <div><dt>Placar</dt><dd>{sport.scoreboard}</dd></div>
+                  <div><dt>Dados da partida</dt><dd>{sport.matchData}</dd></div>
+                  <div><dt>Estatísticas</dt><dd>{sport.stats}</dd></div>
+                </dl>
+              </article>
+            ))}
+          </div>
+          <p className="sports-note">
+            Os parâmetros de jogo variam conforme o regulamento selecionado para cada evento;
+            esta apresentação não altera a operação atual das partidas de vôlei.
+          </p>
         </section>
       </main>
 
@@ -1950,8 +2326,8 @@ function App() {
                   <i>está rolando.</i>
                 </h2>
                 <p className="modal-copy">
-                  Registre um momento da arena pelo celular e publique na
-                  galeria em segundos.
+                  Registre e publique momentos de competições de vôlei de areia,
+                  beach tennis ou beach soccer.
                 </p>
                 {selectedFile ? (
                   <div className="upload-preview">
@@ -1973,7 +2349,7 @@ function App() {
                   >
                     <Camera size={28} />
                     <strong>Tirar foto ou escolher arquivo</strong>
-                    <span>JPG, PNG até 10 MB</span>
+                    <span>JPG ou PNG até 10 MB · somente competições de vôlei de areia, beach tennis ou beach soccer</span>
                   </button>
                 )}
                 <input
@@ -2022,8 +2398,23 @@ function App() {
               <div className="admin-user-tools"><span>{currentUser.name} · {currentUser.role}</span><button onClick={logout}>Sair</button><button className="close-modal" onClick={() => setAdminOpen(false)} aria-label="Fechar painel"><X size={20} /></button></div>
             </header>
             <nav className="console-tabs" aria-label="Seções administrativas">
-              {allowedAdminViews.map((view) => <button className={adminView === view ? "active" : ""} key={view} onClick={() => setAdminView(view)}>{({ sheet: "Súmula", table: "Tabela", regulation: "Regulamento", teams: "Equipes", users: "Usuários", photos: "Publicações", simula: "Simulação" })[view]}</button>)}
+              {allowedAdminViews.map((view) => <button className={adminView === view ? "active" : ""} key={view} onClick={() => setAdminView(view)}>{({ sheet: "Súmula", table: "Tabela", regulation: "Regulamento", teams: "Equipes", users: "Usuários", photos: "Publicações", simula: "Simulação", reports: "Relatórios" })[view]}</button>)}
             </nav>
+
+            {forcePasswordChange && (
+              <div className="console-content force-password-panel">
+                <div className="console-title">
+                  <div><p className="section-kicker">POLÍTICA DE SEGURANÇA</p><h3>Troque a senha <i>obrigatoriamente.</i></h3></div>
+                </div>
+                <p className="modal-copy">Use pelo menos 10 caracteres, incluindo maiúscula, minúscula, número e símbolo. A senha não pode repetir uma das últimas 5 utilizadas.</p>
+                <form className="password-change-form" onSubmit={changeOwnPassword}>
+                  <strong>PRIMEIRO ACESSO</strong>
+                  <label>Senha atual<input required type="password" value={passwordChange.current} onChange={(event) => setPasswordChange({ ...passwordChange, current: event.target.value })} /></label>
+                  <label>Nova senha<input required type="password" minLength="10" value={passwordChange.next} onChange={(event) => setPasswordChange({ ...passwordChange, next: event.target.value })} /></label>
+                  <button type="submit">Ativar nova senha</button>
+                </form>
+              </div>
+            )}
 
             {adminView === "sheet" && allowedAdminViews.includes("sheet") && (
               <div className="console-content">
@@ -2038,7 +2429,7 @@ function App() {
                   <label>Capitão {activeMatch.b}<input value={currentSheet.captainB} onChange={(event) => updateSheetField("captainB", event.target.value)} /></label>
                   <label>Primeiro saque<select value={currentSheet.firstServe} onChange={(event) => updateSheetField("firstServe", event.target.value)}><option value="">Selecione</option><option value="a">{activeMatch.a}</option><option value="b">{activeMatch.b}</option></select></label>
                 </div>
-                <div className="sheet-set-list"><h4>CONTROLE DOS SETS • 2X21 • DESEMPATE 15</h4>{[1, 2, 3].map((setIndex) => {
+                <div className="sheet-set-list"><h4>CONTROLE DOS SETS • TODOS OS SETS ATÉ 15 PONTOS</h4>{[1, 2, 3].map((setIndex) => {
                   const set = currentSheet.sets[setIndex] || {};
                   return <fieldset className="sheet-set" key={setIndex}><legend>{setIndex === 3 ? "3º set" : `Set ${setIndex}`}</legend><label>Início<input type="time" value={set.start || ""} onChange={(event) => updateSheetSet(setIndex, "start", event.target.value)} /></label><label>Término<input type="time" value={set.end || ""} onChange={(event) => updateSheetSet(setIndex, "end", event.target.value)} /></label><label>{activeMatch.a}<input type="number" min="0" max="30" value={set.scoreA ?? ""} onChange={(event) => updateSheetSet(setIndex, "scoreA", event.target.value)} /></label><label>{activeMatch.b}<input type="number" min="0" max="30" value={set.scoreB ?? ""} onChange={(event) => updateSheetSet(setIndex, "scoreB", event.target.value)} /></label><label>Tempos / ocorrências<input value={set.events || ""} onChange={(event) => updateSheetSet(setIndex, "events", event.target.value)} placeholder="Ex.: tempo da equipe A; ocorrência" /></label><button type="button" onClick={() => copyLiveScoreToSheet(setIndex)}>Usar placar ao vivo</button></fieldset>;
                 })}</div>
@@ -2049,10 +2440,10 @@ function App() {
 
             {adminView === "table" && allowedAdminViews.includes("table") && (
               <div className="console-content">
-                <div className="console-title"><div><p className="section-kicker">TABELA OFICIAL · 22 JOGOS</p><h3>Fases do <i>campeonato.</i></h3></div><span>{new Set(matchRecords.filter((record) => /^J(?:0[1-9]|1[0-9]|2[0-2])$/.test(record.fixture)).map((record) => record.fixture)).size} resultados registrados</span></div>
-                <p className="modal-copy">20 jogos classificatórios em duas chaves, seguidos por duas semifinais. Os confrontos das semifinais são preenchidos após a conclusão das duas chaves.</p>
-                {!hasCompleteTeamRegistration(registeredTeams) && <p className="schedule-empty-state" role="status">A tabela será liberada quando houver 10 equipes cadastradas, cada uma com pelo menos 4 atletas. Agora: {registeredTeams.length}/10 equipes completas.</p>}
-                {hasCompleteTeamRegistration(registeredTeams) && !schedulePublished && <div className="schedule-publish-actions"><span>As inscrições estão completas. Gere a tabela para disponibilizar os 22 jogos no placar e no site.</span><button type="button" className="button button-dark" onClick={publishTournamentSchedule} disabled={matchStarted || matchRecords.length > 0}>Gerar tabela de jogos</button></div>}
+                <div className="console-title"><div><p className="section-kicker">TABELA OFICIAL · 16 JOGOS</p><h3>Fases do <i>campeonato.</i></h3></div><span>{matchRecords.length} resultados registrados</span></div>
+                <p className="modal-copy">12 jogos classificatórios em dois grupos alternados na única quadra, seguidos por duas semifinais, disputa do 3º lugar e final.</p>
+                {!hasCompleteTeamRegistration(registeredTeams) && <p className="schedule-empty-state" role="status">A tabela será liberada quando houver 8 equipes cadastradas, cada uma com pelo menos 4 atletas. Agora: {registeredTeams.length}/8 equipes completas.</p>}
+                {hasCompleteTeamRegistration(registeredTeams) && !schedulePublished && <div className="schedule-publish-actions"><span>As inscrições estão completas. Gere a tabela para disponibilizar os 16 jogos no placar e no site.</span><button type="button" className="button button-dark" onClick={publishTournamentSchedule} disabled={matchStarted || matchRecords.length > 0}>Gerar tabela de jogos</button></div>}
                 <div className="admin-fixture-list">
                   {scheduledMatches.map((match) => <div className="admin-scheduled-game" key={match.key}>
                     <p><b>{match.gameNumber} · {match.time} · {match.phase}{match.group ? ` · CHAVE ${match.group}` : ""}</b><span>{match.a} × {match.b} · {match.status}{match.score ? ` · ${match.score}` : ""}</span></p>
@@ -2077,9 +2468,9 @@ function App() {
               <div className="console-content">
                 <div className="console-title">
                   <div><p className="section-kicker">CADASTRO DO TORNEIO</p><h3>Equipes e <i>atletas.</i></h3></div>
-                  <span>{registeredTeams.length}/10 equipes · {registeredTeams.reduce((total, team) => total + team.athletes.length, 0)} atletas</span>
+                  <span>{registeredTeams.length}/8 equipes · {registeredTeams.reduce((total, team) => total + team.athletes.length, 0)} atletas</span>
                 </div>
-                <p className="autosave-note">A tabela será preenchida quando as 10 equipes tiverem pelo menos 4 atletas cadastrados. Cada equipe pode inscrever até 6 atletas.</p>
+                <p className="autosave-note">A tabela será preenchida quando as 8 equipes tiverem pelo menos 4 atletas cadastrados. Cada equipe pode inscrever até 6 atletas.</p>
                 <div className="next-tournament-actions">
                   <p>Finalize ou arquive o torneio atual antes de alterar cadastros. Os dados do próximo torneio aparecem automaticamente no placar e na página pública.</p>
                   <button type="button" onClick={prepareNextTournament} disabled={!registeredTeams.length && !matchRecords.length && !matchStarted}>Preparar próximo torneio</button>
@@ -2088,7 +2479,7 @@ function App() {
                   <label>Nome da equipe<input required value={newTeam.name} onChange={(event) => setNewTeam({ ...newTeam, name: event.target.value })} /></label>
                   <label>Cor<input type="color" value={newTeam.color} onChange={(event) => setNewTeam({ ...newTeam, color: event.target.value })} /></label>
                   <label>Atletas (opcional; separados por vírgula ou linha)<input value={newTeam.athletes} onChange={(event) => setNewTeam({ ...newTeam, athletes: event.target.value })} /></label>
-                  <button className="button button-dark" type="submit" disabled={registeredTeams.length >= 10 || matchStarted || matchRecords.length > 0}>Cadastrar equipe</button>
+                  <button className="button button-dark" type="submit" disabled={registeredTeams.length >= 8 || matchStarted || matchRecords.length > 0}>Cadastrar equipe</button>
                 </form>
                 <form className="athlete-create-form" onSubmit={createAthlete}>
                   <label>Nome do atleta<input required value={newAthlete.name} onChange={(event) => setNewAthlete({ ...newAthlete, name: event.target.value })} /></label>
@@ -2096,16 +2487,16 @@ function App() {
                   <button className="button button-dark" type="submit" disabled={!registeredTeams.length || matchStarted || matchRecords.length > 0}>Cadastrar atleta</button>
                 </form>
                 <div className="schedule-publish-actions">
-                  <span>{schedulePublished ? "Tabela de 22 jogos publicada." : hasCompleteTeamRegistration(registeredTeams) ? "Cadastros completos. Gere a tabela para publicá-la no placar e no site." : "Para liberar a tabela: 10 equipes com pelo menos 4 atletas cada."}</span>
+                  <span>{schedulePublished ? "Tabela de 16 jogos publicada." : hasCompleteTeamRegistration(registeredTeams) ? "Cadastros completos. Gere a tabela para publicá-la no placar e no site." : "Para liberar a tabela: 8 equipes com pelo menos 4 atletas cada."}</span>
                   <button type="button" className="button button-dark" onClick={publishTournamentSchedule} disabled={!hasCompleteTeamRegistration(registeredTeams) || schedulePublished || matchStarted || matchRecords.length > 0}>Gerar tabela de jogos</button>
                 </div>
                 {(matchStarted || matchRecords.length > 0) && <p className="autosave-note">Os cadastros estão bloqueados durante o torneio. Use “Preparar próximo torneio” para limpar os resultados e iniciar novos cadastros.</p>}
                 <div className="admin-team-list">
                   {registeredTeams.map((team) => (
                     <article className="admin-team-card" key={team.name}>
-                      <i style={{ background: team.color }} />
                       <div>
-                        <strong>{team.name}</strong>
+                        <label>Nome da equipe<input value={team.name} disabled={matchStarted || matchRecords.length > 0} onChange={(event) => updateTeam(team.name, { name: event.target.value })} /></label>
+                        <label>Cor da equipe<input type="color" value={team.color} disabled={matchStarted || matchRecords.length > 0} onChange={(event) => updateTeam(team.name, { color: event.target.value })} /></label>
                         <span>{team.athletes.length}/6 atletas cadastrados</span>
                         <div className="admin-team-athletes">
                           {team.athletes.length
@@ -2121,12 +2512,282 @@ function App() {
               </div>
             )}
 
+            {adminView === "reports" && allowedAdminViews.includes("reports") && (
+              <div className="console-content reports-console">
+                <div className="console-title">
+                  <div><p className="section-kicker">IMPRESSÃO E ANÁLISE</p><h3>Relatórios do <i>torneio.</i></h3></div>
+                  <button type="button" className="button button-dark" onClick={() => window.print()}>Imprimir relatório</button>
+                </div>
+                <div className="report-tabs" role="tablist" aria-label="Tipo de relatório">
+                  <button type="button" className={reportType === "championship" ? "active" : ""} onClick={() => setReportType("championship")}>Campeonato completo</button>
+                  <button type="button" className={reportType === "games" ? "active" : ""} onClick={() => setReportType("games")}>Relação dos jogos</button>
+                  <button type="button" className={reportType === "matchSheets" ? "active" : ""} onClick={() => setReportType("matchSheets")}>Súmulas individuais</button>
+                  <button type="button" className={reportType === "match" ? "active" : ""} onClick={() => setReportType("match")}>Resumo da partida</button>
+                  <button type="button" className={reportType === "general" ? "active" : ""} onClick={() => setReportType("general")}>Estatística geral</button>
+                  <button type="button" className={reportType === "classification" ? "active" : ""} onClick={() => setReportType("classification")}>Classificação</button>
+                </div>
+
+                <div className="reports-print-area">
+                  {reportType === "championship" && (
+                    <div className="report-section championship-report">
+                      <section className="championship-cover">
+                        <p>1º CAMPEONATO • QUARTETOS MISTOS</p>
+                        <h4>Vôlei de areia 40+</h4>
+                        <strong>Condomínio Aldeia da Serra</strong>
+                        <span>Início às 8h • Todos os atletas presentes às 8h</span>
+                        <div>CAMPEONATO GERAL</div>
+                      </section>
+
+                      <section className="championship-page">
+                        <p className="report-print-kicker">DOCUMENTO OFICIAL</p>
+                        <h4>Regulamento do campeonato</h4>
+                        <div className="championship-regulation">
+                          {regulation.split("\n").filter(Boolean).map((line, index) =>
+                            line.startsWith("•")
+                              ? <p key={`${line}-${index}`}>• {line.slice(1).trim()}</p>
+                              : <h5 key={`${line}-${index}`}>{line}</h5>,
+                          )}
+                        </div>
+                      </section>
+
+                      <section className="championship-page">
+                        <p className="report-print-kicker">COMPOSIÇÃO</p>
+                        <h4>Relação das equipes</h4>
+                        <table className="report-table championship-teams">
+                          <thead><tr><th>Equipe</th><th>Grupo</th><th>Atletas</th></tr></thead>
+                          <tbody>{registeredTeams.map((team, index) => <tr key={team.name}>
+                            <td><i className="report-team-dot" style={{ background: team.color }} />{team.name}</td>
+                            <td>{index < 4 ? "Grupo 1" : "Grupo 2"}</td>
+                            <td>{team.athletes.length ? team.athletes.join(" • ") : "Não informado"}</td>
+                          </tr>)}</tbody>
+                        </table>
+                      </section>
+
+                      <section className="championship-page">
+                        <p className="report-print-kicker">PROGRAMAÇÃO</p>
+                        <h4>Relação dos jogos</h4>
+                        <table className="report-table">
+                          <thead><tr><th>Jogo</th><th>Horário</th><th>Fase</th><th>Equipe A</th><th>Equipe B</th></tr></thead>
+                          <tbody>{scheduledMatches.map((match) => <tr key={match.key}>
+                            <td>{match.gameNumber}</td><td>{match.time}</td>
+                            <td>{match.phase}{match.group ? ` • Grupo ${match.group}` : ""}</td>
+                            <td>{match.a}</td><td>{match.b}</td>
+                          </tr>)}</tbody>
+                        </table>
+                      </section>
+
+                      <section className="championship-page">
+                        <p className="report-print-kicker">CLASSIFICAÇÃO</p>
+                        <h4>Método de classificação</h4>
+                        <p className="report-rule">Os dois melhores de cada grupo avançam. O desempate seguirá: 1º maior número de vitórias; 2º maior saldo de pontos; 3º confronto direto.</p>
+                        {["A", "B"].map((group) => (
+                          <div className="report-classification-group" key={group}>
+                            <h5>Grupo {group}</h5>
+                            <table className="report-table">
+                              <thead><tr><th>Pos.</th><th>Equipe</th><th>J</th><th>V</th><th>D</th><th>Pontos</th><th>Saldo</th><th>Situação</th></tr></thead>
+                              <tbody>{standings.filter((team) => team.group === group).map((team) => <tr key={team.name}>
+                                <td>{team.rank}</td><td>{team.name.toUpperCase()}</td><td>{team.played}</td><td>{team.wins}</td><td>{team.losses}</td><td>{team.pointsFor}</td><td>{team.pointDiff > 0 ? "+" : ""}{team.pointDiff}</td><td>{team.qualified === null ? "A aguardar" : team.qualified ? "Classificado" : "Eliminado"}</td>
+                              </tr>)}</tbody>
+                            </table>
+                          </div>
+                        ))}
+                        <h5>Semifinais e decisões</h5>
+                        <ul className="championship-playoffs">
+                          <li>13º jogo — 1º do Grupo 1 × 2º do Grupo 2</li>
+                          <li>14º jogo — 2º do Grupo 1 × 1º do Grupo 2</li>
+                          <li>15º jogo — disputa do 3º lugar entre os perdedores das semifinais</li>
+                          <li>16º jogo — final entre os vencedores das semifinais</li>
+                        </ul>
+                      </section>
+                    </div>
+                  )}
+
+                  {reportType === "games" && (
+                    <div className="report-section">
+                      <p className="report-print-kicker">ALDEIA DA SERRA • VÔLEI DE AREIA 40+</p>
+                      <h4>Relação oficial dos jogos</h4>
+                      <table className="report-table">
+                        <thead><tr><th>Jogo</th><th>Horário</th><th>Fase / chave</th><th>Quadra</th><th>Equipe A</th><th>Equipe B</th><th>Status</th><th>Placar</th></tr></thead>
+                        <tbody>{scheduledMatches.map((match) => <tr key={match.key}>
+                          <td>{match.gameNumber}</td><td>{match.time}</td>
+                          <td>{match.phase}{match.group ? ` • Grupo ${match.group}` : ""}</td>
+                          <td>{match.court}</td><td>{match.a}</td><td>{match.b}</td>
+                          <td>{match.status}</td><td>{match.score || "—"}</td>
+                        </tr>)}</tbody>
+                      </table>
+                      {!scheduledMatches.length && <p className="report-empty">A tabela ainda não foi publicada.</p>}
+                    </div>
+                  )}
+
+                  {reportType === "matchSheets" && (
+                    <div className="report-section match-sheets-report">
+                      {(scheduledMatches.length ? scheduledMatches : Array.from({ length: 16 }, (_, index) => ({
+                        key: `J${String(index + 1).padStart(2, "0")}`,
+                        gameNumber: String(index + 1).padStart(2, "0"),
+                        time: "",
+                        court: "Quadra 01",
+                        phase: "A definir",
+                        group: null,
+                        a: "________________",
+                        b: "________________",
+                      }))).map((match) => {
+                        const teamA = registeredTeams.find((team) => team.name.toUpperCase() === match.a);
+                        const teamB = registeredTeams.find((team) => team.name.toUpperCase() === match.b);
+                        return <article className="match-sheet-page" key={match.key}>
+                          <header>
+                            <p>SÚMULA OFICIAL — VÔLEI DE AREIA 40+</p>
+                            <strong>JOGO {match.gameNumber}</strong>
+                          </header>
+                          <table className="report-table match-sheet-table">
+                            <tbody>
+                              <tr><th>Nº JOGO</th><td>{match.gameNumber}</td><th>DATA</th><td>___/___/2026</td><th>HORÁRIO</th><td>{match.time || "_______"}</td></tr>
+                              <tr><th>QUADRA</th><td>{match.court}</td><th>FASE</th><td>{match.phase}</td><th>GRUPO</th><td>{match.group || "—"}</td></tr>
+                              <tr><th>EQUIPE A</th><td colSpan="2">{match.a}</td><th>EQUIPE B</th><td colSpan="2">{match.b}</td></tr>
+                              <tr><th>ÁRBITRO</th><td colSpan="2">________________</td><th>MESÁRIO</th><td colSpan="2">________________</td></tr>
+                            </tbody>
+                          </table>
+
+                          <h5>Identificação dos atletas</h5>
+                          <table className="report-table">
+                            <thead><tr><th>Equipe</th><th>Atleta 1</th><th>Atleta 2</th><th>Atleta 3</th><th>Atleta 4</th></tr></thead>
+                            <tbody>
+                              <tr><td>{match.a}</td>{(teamA?.athletes || ["", "", "", ""]).map((athlete, index) => <td key={index}>{athlete || "____________"}</td>)}</tr>
+                              <tr><td>{match.b}</td>{(teamB?.athletes || ["", "", "", ""]).map((athlete, index) => <td key={index}>{athlete || "____________"}</td>)}</tr>
+                            </tbody>
+                          </table>
+
+                          <h5>Controle dos sets • todos até 15 pontos</h5>
+                          <table className="report-table">
+                            <thead><tr><th>Set</th><th>{match.a}</th><th>{match.b}</th><th>Vencedor</th><th>Início</th><th>Término</th></tr></thead>
+                            <tbody>{[1, 2, 3].map((setNumber) => <tr key={setNumber}>
+                              <td>{setNumber}º SET</td><td></td><td></td><td></td><td></td><td></td>
+                            </tr>)}</tbody>
+                          </table>
+
+                          <div className="match-sheet-result">
+                            <span><b>Resultado final:</b> ______ × ______</span>
+                            <span><b>Equipe vencedora:</b> __________________</span>
+                          </div>
+
+                          <h5>Estatísticas técnicas consolidadas</h5>
+                          <table className="report-table">
+                            <thead><tr><th>Indicador</th><th>{match.a}</th><th>{match.b}</th></tr></thead>
+                            <tbody>
+                              <tr><td>Pontos de saque</td><td></td><td></td></tr>
+                              <tr><td>Pontos de ataque</td><td></td><td></td></tr>
+                              <tr><td>Pontos de bloqueio</td><td></td><td></td></tr>
+                              <tr><td>Erros de saque</td><td></td><td></td></tr>
+                              <tr><td>Erros de ataque</td><td></td><td></td></tr>
+                              <tr><td>Pedidos de tempo</td><td></td><td></td></tr>
+                            </tbody>
+                          </table>
+
+                          <h5>Ocorrências e observações</h5>
+                          <table className="report-table">
+                            <thead><tr><th>Horário</th><th>Set</th><th>Equipe / atleta</th><th>Tipo de ocorrência</th><th>Descrição / providência</th></tr></thead>
+                            <tbody>{[1, 2, 3, 4, 5].map((index) => <tr key={index}>
+                              <td>&nbsp;<br />&nbsp;</td><td></td><td></td><td></td><td></td>
+                            </tr>)}</tbody>
+                          </table>
+
+                          <div className="match-sheet-signatures">
+                            <span>Mesário: __________________________</span>
+                            <span>Árbitro: __________________________</span>
+                            <span>Equipe A: _________________________</span>
+                            <span>Equipe B: _________________________</span>
+                          </div>
+                        </article>;
+                      })}
+                    </div>
+                  )}
+
+                  {reportType === "match" && (
+                    <div className="report-section">
+                      <p className="report-print-kicker">ALDEIA DA SERRA • VÔLEI DE AREIA 40+</p>
+                      <h4>Resumo das partidas</h4>
+                      {matchRecords.length ? matchRecords.map((record) => {
+                        const sheet = matchSheets[record.fixture] || {};
+                        return <article className="match-report-card" key={record.id}>
+                          <div className="match-report-title"><strong>Jogo {record.gameNumber} • {record.phase}</strong><span>{record.court}</span></div>
+                          <div className="match-report-score">
+                            <span>{record.teamA}</span><b>{record.finalSets?.a || 0} × {record.finalSets?.b || 0}</b><span>{record.teamB}</span>
+                          </div>
+                          <dl className="match-report-meta">
+                            <div><dt>Início</dt><dd>{record.startedAt ? new Date(record.startedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</dd></div>
+                            <div><dt>Término</dt><dd>{record.finishedAt ? new Date(record.finishedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</dd></div>
+                            <div><dt>Duração</dt><dd>{formatReportDuration(record.durationMs)}</dd></div>
+                            <div><dt>Vencedor</dt><dd>{record.winner}</dd></div>
+                            <div><dt>Oficiais</dt><dd>{sheet.officials || "—"}</dd></div>
+                          </dl>
+                          <table className="report-table match-set-table">
+                            <thead><tr><th>Set</th><th>{record.teamA}</th><th>{record.teamB}</th><th>Início</th><th>Término</th><th>Observações</th></tr></thead>
+                            <tbody>{(record.sets || []).map((set) => {
+                              const sheetSet = sheet.sets?.[set.number] || {};
+                              return <tr key={set.number}><td>{set.number}</td><td>{set.a}</td><td>{set.b}</td><td>{sheetSet.start || "—"}</td><td>{sheetSet.end || "—"}</td><td>{sheetSet.events || "—"}</td></tr>;
+                            })}</tbody>
+                          </table>
+                          <p className="match-report-notes"><strong>Observações:</strong> {sheet.notes || "Nenhuma observação registrada."}</p>
+                        </article>;
+                      }) : <p className="report-empty">Nenhuma partida foi finalizada.</p>}
+                    </div>
+                  )}
+
+                  {reportType === "general" && (
+                    <div className="report-section">
+                      <p className="report-print-kicker">ALDEIA DA SERRA • VÔLEI DE AREIA 40+</p>
+                      <h4>Estatística geral do torneio</h4>
+                      <div className="report-highlight-grid">
+                        <article><span>Equipe que marcou mais pontos</span><strong>{maxTeamPoints?.nameUpper || "—"}</strong><b>{maxTeamPointsValue} pontos</b></article>
+                        <article><span>Partida mais curta</span><strong>{shortestMatch ? `${shortestMatch.teamA} × ${shortestMatch.teamB}` : "—"}</strong><b>{shortestMatch ? formatReportDuration(shortestMatch.durationMs) : "—"}</b></article>
+                        <article><span>Partida mais longa</span><strong>{longestMatch ? `${longestMatch.teamA} × ${longestMatch.teamB}` : "—"}</strong><b>{longestMatch ? formatReportDuration(longestMatch.durationMs) : "—"}</b></article>
+                      </div>
+                      <h5>Performance por equipe — pontos marcados</h5>
+                      <div className="report-chart" aria-label="Gráfico de pontos por equipe">
+                        {reportTeamStats.map((team) => (
+                          <div className="report-chart-row" key={team.name}>
+                            <span>{team.nameUpper}</span>
+                            <div><i style={{ width: `${maxTeamPointsValue ? (team.pointsFor / maxTeamPointsValue) * 100 : 0}%`, background: team.color }} /></div>
+                            <b>{team.pointsFor}</b>
+                          </div>
+                        ))}
+                      </div>
+                      <table className="report-table report-team-table">
+                        <thead><tr><th>Equipe</th><th>Partidas</th><th>Vitórias</th><th>Derrotas</th><th>Pontos a favor</th><th>Pontos contra</th><th>Saldo</th><th>Tempo em quadra</th></tr></thead>
+                        <tbody>{reportTeamStats.map((team) => <tr key={team.name}>
+                          <td><i className="report-team-dot" style={{ background: team.color }} />{team.nameUpper}</td><td>{team.played}</td><td>{team.wins}</td><td>{team.losses}</td><td>{team.pointsFor}</td><td>{team.pointsAgainst}</td><td>{team.pointDiff > 0 ? "+" : ""}{team.pointDiff}</td><td>{formatReportDuration(team.durationMs)}</td>
+                        </tr>)}</tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {reportType === "classification" && (
+                    <div className="report-section">
+                      <p className="report-print-kicker">ALDEIA DA SERRA • VÔLEI DE AREIA 40+</p>
+                      <h4>Relatório de classificação por rendimento</h4>
+                      <p className="report-rule">Critério oficial: maior número de vitórias; saldo de pontos; confronto direto; posição inicial.</p>
+                      {["A", "B"].map((group) => (
+                        <div className="report-classification-group" key={group}>
+                          <h5>Grupo {group}</h5>
+                          <table className="report-table">
+                            <thead><tr><th>Pos.</th><th>Equipe</th><th>J</th><th>V</th><th>D</th><th>Pontos</th><th>Saldo</th><th>Situação</th></tr></thead>
+                            <tbody>{standings.filter((team) => team.group === group).map((team) => <tr key={team.name}>
+                              <td>{team.rank}</td><td><i className="report-team-dot" style={{ background: team.color }} />{team.name.toUpperCase()}</td><td>{team.played}</td><td>{team.wins}</td><td>{team.losses}</td><td>{team.pointsFor}</td><td>{team.pointDiff > 0 ? "+" : ""}{team.pointDiff}</td><td>{team.qualified === null ? "A aguardar" : team.qualified ? "Classificado" : "Eliminado"}</td>
+                            </tr>)}</tbody>
+                          </table>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {adminView === "users" && currentUser.role === "admin" && (
-              <div className="console-content"><div className="console-title"><div><p className="section-kicker">ACESSO AO PAINEL</p><h3>Usuários e <i>permissões.</i></h3></div></div><form className="user-create-form" onSubmit={createUser}><label>Nome<input required value={newUser.name} onChange={(event) => setNewUser({ ...newUser, name: event.target.value })} /></label><label>Usuário<input required autoComplete="off" value={newUser.username} onChange={(event) => setNewUser({ ...newUser, username: event.target.value })} /></label><label>Senha<input required type="password" autoComplete="new-password" value={newUser.password} onChange={(event) => setNewUser({ ...newUser, password: event.target.value })} /></label><label>Nível de acesso<select value={newUser.role} onChange={(event) => setNewUser({ ...newUser, role: event.target.value })}><option value="mesario">Mesário · súmula</option><option value="organizador">Organizador · tabela, equipes e regulamento</option><option value="publicador">Publicador · fotos</option><option value="admin">Administrador · acesso total</option></select></label><button className="button button-dark" type="submit">Criar usuário</button></form><form className="password-change-form" onSubmit={changeOwnPassword}><strong>ALTERAR MINHA SENHA</strong><label>Senha atual<input required type="password" value={passwordChange.current} onChange={(event) => setPasswordChange({ ...passwordChange, current: event.target.value })} /></label><label>Nova senha<input required minLength="4" type="password" value={passwordChange.next} onChange={(event) => setPasswordChange({ ...passwordChange, next: event.target.value })} /></label><button type="submit">Atualizar senha</button></form><div className="admin-user-list">{users.map((user) => <article key={user.id}><div><strong>{user.name}</strong><span>{user.username} · {({ admin: "Administrador", mesario: "Mesário", organizador: "Organizador", publicador: "Publicador" })[user.role]}</span></div><button disabled={user.id === currentUser.id || user.id === "admin-inicial"} onClick={() => setUsers((current) => current.filter((item) => item.id !== user.id))}>Remover</button></article>)}</div><p className="security-note">As contas e senhas ficam armazenadas neste navegador. Esta autenticação local não oferece proteção segura para produção.</p></div>
+              <div className="console-content"><div className="console-title"><div><p className="section-kicker">ACESSO AO PAINEL</p><h3>Usuários e <i>permissões.</i></h3></div></div><form className="user-create-form" onSubmit={createUser}><label>Nome<input required value={newUser.name} onChange={(event) => setNewUser({ ...newUser, name: event.target.value })} /></label><label>Usuário<input required autoComplete="off" value={newUser.username} onChange={(event) => setNewUser({ ...newUser, username: event.target.value })} /></label><label>Senha<input required type="password" minLength="10" autoComplete="new-password" value={newUser.password} onChange={(event) => setNewUser({ ...newUser, password: event.target.value })} /></label><label>Nível de acesso<select value={newUser.role} onChange={(event) => setNewUser({ ...newUser, role: event.target.value })}><option value="mesario">Mesário · súmula</option><option value="organizador">Organizador · tabela, equipes e regulamento</option><option value="publicador">Publicador · fotos</option><option value="admin">Administrador · acesso total</option></select></label><button className="button button-dark" type="submit">Criar usuário</button></form><form className="password-change-form" onSubmit={changeOwnPassword}><strong>ALTERAR MINHA SENHA</strong><label>Senha atual<input required type="password" value={passwordChange.current} onChange={(event) => setPasswordChange({ ...passwordChange, current: event.target.value })} /></label><label>Nova senha<input required minLength="10" type="password" value={passwordChange.next} onChange={(event) => setPasswordChange({ ...passwordChange, next: event.target.value })} /></label><button type="submit">Atualizar senha</button></form><div className="admin-user-list">{users.map((user) => <article key={user.id}><div><strong>{user.name}</strong><span>{user.username} · {({ admin: "Administrador", mesario: "Mesário", organizador: "Organizador", publicador: "Publicador" })[user.role]}</span></div><button disabled={user.id === currentUser.id || user.id === "admin-inicial"} onClick={() => setUsers((current) => current.filter((item) => item.id !== user.id))}>Remover</button></article>)}</div><p className="security-note">POLÍTICA LOCAL: senha com 10 caracteres, maiúscula, minúscula, número e símbolo; bloqueio por 15 minutos após 5 tentativas; sessão expira após 30 minutos sem atividade; não reutilizar as últimas 5 senhas. Os dados permanecem neste navegador e não substituem autenticação de servidor.</p></div>
             )}
 
             {adminView === "photos" && allowedAdminViews.includes("photos") && (
-              <div className="console-content"><div className="console-title"><div><p className="section-kicker">ÁLBUM DO EVENTO</p><h3>Publicações da <i>arena.</i></h3></div></div>{selectedFile ? <div className="upload-preview"><img src={selectedFile.url} alt="Prévia da foto selecionada" /><button onClick={() => setSelectedFile(null)} aria-label="Remover foto"><X size={16} /></button></div> : <button className="upload-zone" onClick={() => fileInput.current?.click()}><Camera size={28} /><strong>Tirar foto ou escolher arquivo</strong><span>JPG, PNG até 10 MB</span></button>}<input ref={fileInput} className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={handleFile} />{selectedFile && <div className="photo-publish-controls"><label>Legenda<input value={caption} onChange={(event) => setCaption(event.target.value)} placeholder="Escreva uma legenda..." /></label><button className="button button-dark" onClick={publishPost}><Upload size={16} /> Publicar na galeria</button></div>}<div className="admin-photo-grid">{posts.map((post, index) => <article key={`${post.image}-${index}`}><img src={post.image} alt="Foto publicada do evento" /><div><strong>{post.label}</strong><span>{post.text}</span></div></article>)}</div></div>
+              <div className="console-content"><div className="console-title"><div><p className="section-kicker">ÁLBUM DO EVENTO</p><h3>Publicações da <i>arena.</i></h3></div></div>{selectedFile ? <div className="upload-preview"><img src={selectedFile.url} alt="Prévia da foto selecionada" /><button onClick={() => setSelectedFile(null)} aria-label="Remover foto"><X size={16} /></button></div> : <button className="upload-zone" onClick={() => fileInput.current?.click()}><Camera size={28} /><strong>Tirar foto ou escolher arquivo</strong><span>JPG ou PNG até 10 MB · somente competições de vôlei de areia, beach tennis ou beach soccer</span></button>}<input ref={fileInput} className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={handleFile} />{selectedFile && <div className="photo-publish-controls"><label>Legenda<input value={caption} onChange={(event) => setCaption(event.target.value)} placeholder="Escreva uma legenda..." /></label><button className="button button-dark" onClick={publishPost}><Upload size={16} /> Publicar na galeria</button></div>}<div className="admin-photo-grid">{posts.map((post, index) => <article key={`${post.image}-${index}`}><img src={post.image} alt="Foto publicada do evento" /><div><strong>{post.label}</strong><span>{post.text}</span></div></article>)}</div></div>
             )}
 
             {adminView === "simula" && allowedAdminViews.includes("simula") && (

@@ -1,15 +1,12 @@
-# Sistema de Gestão de Torneios de Vôlei de Areia
+# Portal para Gestão de Torneios de Vôlei de Areia, Beach Tenis e Beach soccer
 
 ## 1. Objetivo {#1-objetivo}
 
-Este documento define a especificação funcional de um sistema para
-**cadastro, organização, sorteio, operação, arbitragem, mesa e placar
-eletrônico de torneios de vôlei de areia**.
+Este documento define a especificação funcional de um portal de serviçospara
+**cadastro de atletas, organizadores e de eventos. Cadastro de organização, sorteio, operação, arbitragem, mesa e placar eletrônico de torneios de vôlei de areia,beach tenis e beach soccer**.
 
-O sistema deve permitir que a organização registre atletas e equipes,
-defina cores e identidade visual, monte a tabela de jogos, realize
-sorteios, acompanhe cada partida em tempo real e disponibilize o placar
-eletrônico para exibição ao público.
+O sistema deve permitir que a organização registre atletas com o maximo de informações possíveis e equipes, defina cores e identidade visual, monte a tabela de jogos, realize
+sorteios, acompanhe cada partida em tempo real e disponibilize o placar eletrônico para exibição ao público.
 
 > **Referência normativa:** as regras esportivas deste documento devem
 > ser parametrizadas com base nas **Official Beach Volleyball Rules
@@ -23,9 +20,9 @@ eletrônico para exibição ao público.
 
 O sistema será dividido em cinco grandes áreas:
 
-1.  **Cadastro e configuração do torneio**
+1.  **Cadastro de gestores e configuração do torneio**
 2.  **Cadastro de atletas e equipes**
-3.  **Tabela, sorteio e programação dos jogos**
+3.  **Tabelas, sorteios e programação dos jogos**
 4.  **Mesa/mesário e súmula eletrônica**
 5.  **Placar eletrônico e acompanhamento público**
 
@@ -34,6 +31,17 @@ O sistema será dividido em cinco grandes áreas:
 ``` text
 TORNEIO
    │
+   ├── Gestores
+   │      ├── Gestor 1
+   │      ├── Gestor 2
+   |      |__Gestor 3
+   |      
+   |__ Tipo de Evento
+   |__    |__ Volei de Areia
+   |__    |__ Beach Tenis
+   |__    |__ Beach Soccer
+   |__    |__ Outros
+   │
    ├── Categorias
    │      ├── Masculino
    │      ├── Feminino
@@ -41,10 +49,16 @@ TORNEIO
    │      └── Outras categorias
    │
    ├── Equipes
-   │      └── 2 atletas por equipe
+   │      └── 2 ou mais atletas por equipe
+   |__    |__Atleta 1
+   |__    |__Atleta 2
+   |__    |__Capitão
+   |__    |__Outros
    │
    ├── Sorteio
-   │      └── Chaveamento / grupos / partidas
+   │      └── Chaveamento
+   |      |__Grupos
+   |      |__Partidas
    │
    ├── Partida
    │      ├── Sorteio inicial

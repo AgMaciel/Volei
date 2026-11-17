@@ -95,6 +95,32 @@ button { cursor: pointer; }
 .regulation-copy p { margin: 0 0 12px; break-inside: avoid; }
 .regulation-copy .regulation-subhead { margin-top: 17px; color: var(--blue); font-size: 11px; font-weight: 700; letter-spacing: 1px; }
 .regulation-item { padding-left: 14px; border-left: 2px solid var(--yellow); }
+.sports-section { background: #ebe9e3; border-top: 1px solid var(--line); }
+.sports-section .section-heading { align-items: end; }
+.sports-intro { max-width: 360px; margin: 0 0 5px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.sports-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.sport-card { min-width: 0; background: #fff; border: 1px solid var(--line); }
+.sport-card-heading { min-height: 190px; padding: 30px 32px; background: var(--navy); color: white; }
+.sport-card-heading > span { color: var(--yellow); font-size: 9px; font-weight: 700; letter-spacing: 1.5px; }
+.sport-card-heading > strong { display: block; margin-top: 24px; font-family: 'Archivo Black', sans-serif; font-size: clamp(27px, 3vw, 38px); letter-spacing: -1.3px; }
+.sport-card-heading > p { max-width: 380px; margin: 10px 0 0; color: rgba(255,255,255,.72); font-size: 12px; line-height: 1.6; }
+.sport-card-soccer .sport-card-heading > span { color: var(--yellow); }
+.sport-details { margin: 0; padding: 8px 32px 20px; }
+.sport-details > div { display: grid; grid-template-columns: minmax(125px, .65fr) 1.35fr; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--line); }
+.sport-details > div:last-child { border-bottom: 0; }
+.sport-details dt { color: var(--blue); font-size: 9px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+.sport-details dd { margin: 0; color: var(--ink); font-size: 11px; line-height: 1.6; }
+.sports-note { margin: 22px 0 0; padding-left: 13px; border-left: 2px solid var(--yellow); color: var(--muted); font-size: 10px; line-height: 1.6; }
+.previous-tournaments { background: #fff; border-top: 1px solid var(--line); }
+.previous-tournaments-intro { max-width: 340px; margin: 0 0 5px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.previous-tournament-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+.previous-tournament-card { display: grid; grid-template-columns: minmax(250px, .9fr) 1.1fr; min-height: 310px; border: 1px solid var(--line); background: var(--sand); }
+.previous-tournament-card > img { width: 100%; height: 100%; min-height: 310px; object-fit: cover; }
+.previous-tournament-content { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 38px clamp(25px, 5vw, 65px); }
+.previous-tournament-content > span { color: var(--blue); font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+.previous-tournament-content h3 { margin: 18px 0 10px; font-family: 'Archivo Black', sans-serif; font-size: clamp(26px, 3vw, 38px); letter-spacing: -1px; }
+.previous-tournament-content p { max-width: 380px; margin: 0 0 22px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.previous-tournament-content .under-link { color: var(--blue); }
 .admin-console-backdrop { z-index: 30; place-items: center; }
 .admin-console { position: relative; display: flex; flex-direction: column; width: min(1180px, 100%); max-height: min(94vh, 1000px); overflow: auto; background: var(--sand); box-shadow: 0 20px 65px rgba(8,18,31,.3); }
 .admin-console-header { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 28px 36px 24px; border-bottom: 1px solid var(--line); }
@@ -171,6 +197,8 @@ button { cursor: pointer; }
 .password-change-form label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
 .password-change-form input { min-width: 0; border: 1px solid var(--line); background: #fff; padding: 10px 11px; outline-color: var(--blue); font-size: 12px; }
 .password-change-form button { min-height: 37px; border: 1px solid var(--blue); background: transparent; color: var(--blue); padding: 0 11px; font-size: 9px; font-weight: 700; }
+.admin-console:has(.force-password-panel) .console-tabs,
+.admin-console:has(.force-password-panel) .force-password-panel ~ .console-content { display: none; }
 .live-dot.is-idle { background: #8593a1; }
 .match-loader .button { width: auto; white-space: nowrap; }
 .score-actions button:disabled, .set-controls button:disabled { opacity: .45; cursor: not-allowed; }
@@ -210,6 +238,82 @@ button { cursor: pointer; }
 .admin-standings { margin-top: 30px; }
 .admin-standings h4 { margin: 0 0 12px; color: var(--blue); font-size: 10px; letter-spacing: 1px; }
 .admin-fixture-list p span { color: var(--muted); }
+.report-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0; }
+.report-tabs button { min-height: 38px; border: 1px solid var(--line); background: #fff; color: var(--muted); padding: 0 12px; font-size: 10px; font-weight: 700; }
+.report-tabs button.active { border-color: var(--blue); background: var(--blue); color: #fff; }
+.reports-print-area { color: var(--ink); background: #fff; }
+.report-section { padding: 24px; border: 1px solid var(--line); }
+.report-section h4 { margin: 4px 0 18px; font-family: 'Archivo Black', sans-serif; font-size: 24px; }
+.report-section h5 { margin: 24px 0 10px; color: var(--blue); font-size: 11px; text-transform: uppercase; }
+.report-print-kicker { margin: 0; color: var(--blue); font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+.report-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.report-table th { padding: 9px 7px; border-bottom: 2px solid var(--line); color: var(--blue); text-align: left; font-size: 9px; text-transform: uppercase; }
+.report-table td { padding: 9px 7px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.report-empty { padding: 18px; border: 1px dashed var(--line); color: var(--muted); font-size: 11px; }
+.match-report-card { margin: 0 0 18px; padding: 14px; break-inside: avoid; border: 1px solid var(--line); }
+.match-report-title { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 10px; }
+.match-report-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px; padding: 14px 0; text-align: center; }
+.match-report-score span { font-weight: 700; }
+.match-report-score b { color: var(--blue); font-family: 'Archivo Black', sans-serif; font-size: 20px; }
+.match-report-meta { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 0 0 12px; }
+.match-report-meta div { border-left: 2px solid var(--yellow); padding-left: 8px; }
+.match-report-meta dt { color: var(--muted); font-size: 8px; text-transform: uppercase; }
+.match-report-meta dd { margin: 3px 0 0; font-size: 10px; }
+.match-report-notes { margin: 12px 0 0; font-size: 10px; }
+.report-highlight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.report-highlight-grid article { min-height: 100px; padding: 14px; border: 1px solid var(--line); background: #f7f6f2; }
+.report-highlight-grid span, .report-highlight-grid b { display: block; color: var(--muted); font-size: 9px; }
+.report-highlight-grid strong { display: block; margin: 14px 0 8px; color: var(--blue); font-size: 14px; }
+.report-chart { display: grid; gap: 8px; margin-bottom: 20px; }
+.report-chart-row { display: grid; grid-template-columns: 90px 1fr 40px; align-items: center; gap: 8px; font-size: 9px; }
+.report-chart-row > div { height: 16px; overflow: hidden; background: #ebe9e3; }
+.report-chart-row i { display: block; height: 100%; min-width: 2px; }
+.report-chart-row b { text-align: right; }
+.report-team-dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border: 1px solid rgba(0,0,0,.15); border-radius: 50%; }
+.report-rule { padding: 9px 12px; border-left: 3px solid var(--yellow); background: #f7f6f2; color: var(--muted); font-size: 10px; }
+.report-classification-group { margin-top: 18px; }
+.championship-report { padding: 0 !important; }
+.championship-cover { min-height: 190mm; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--navy); color: #fff; break-after: page; }
+.championship-cover p { margin: 0 0 22px; color: var(--yellow); font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+.championship-cover h4 { margin: 0 0 14px; color: #fff; font-size: 38px; }
+.championship-cover strong { font-size: 18px; }
+.championship-cover span { margin-top: 12px; color: rgba(255,255,255,.75); font-size: 12px; }
+.championship-cover div { margin-top: 55px; border: 1px solid var(--yellow); color: var(--yellow); padding: 12px 24px; font-size: 10px; font-weight: 700; letter-spacing: 2px; }
+.championship-page { padding: 12mm 10mm; break-after: page; }
+.championship-page:last-child { break-after: auto; }
+.championship-page h5 { margin: 18px 0 8px; color: var(--blue); }
+.championship-regulation p { margin: 5px 0; font-size: 10px; }
+.championship-regulation h5 { margin: 12px 0 5px; font-size: 11px; }
+.championship-playoffs { margin: 8px 0 0; padding-left: 18px; font-size: 11px; line-height: 1.8; }
+.match-sheets-report { padding: 0 !important; }
+.match-sheet-page { min-height: 180mm; padding: 8mm 10mm; break-after: page; break-inside: avoid; }
+.match-sheet-page:last-child { break-after: auto; }
+.match-sheet-page header { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 3px solid var(--navy); margin-bottom: 8px; padding-bottom: 7px; }
+.match-sheet-page header p { margin: 0; color: var(--blue); font-size: 10px; font-weight: 700; }
+.match-sheet-page header strong { font-family: 'Archivo Black', sans-serif; font-size: 19px; }
+.match-sheet-page h5 { margin: 10px 0 5px; color: var(--blue); font-size: 9px; text-transform: uppercase; }
+.match-sheet-table th { background: #f1f1ed; }
+.match-sheet-result { display: flex; justify-content: space-between; gap: 12px; margin: 8px 0; font-size: 10px; }
+.match-sheet-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; margin-top: 12px; font-size: 9px; }
+@media print {
+  html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: #fff !important; }
+  .site-shell > * { display: none !important; }
+  .site-shell > .admin-console-backdrop { display: block !important; position: static !important; width: 100% !important; height: auto !important; padding: 0 !important; overflow: visible !important; background: #fff !important; }
+  .admin-console-backdrop .admin-console { position: static !important; width: 100% !important; max-height: none !important; height: auto !important; overflow: visible !important; box-shadow: none !important; background: #fff !important; }
+  .admin-console-backdrop .admin-console-header,
+  .admin-console-backdrop .console-tabs,
+  .admin-console-backdrop .reports-console > .console-title,
+  .admin-console-backdrop .report-tabs { display: none !important; }
+  .admin-console-backdrop .reports-console { display: block !important; padding: 0 !important; overflow: visible !important; }
+  .reports-print-area { display: block !important; position: static !important; width: 100% !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: #fff !important; }
+  .report-section { display: block !important; border: 0 !important; padding: 8mm 10mm !important; break-before: auto; break-inside: auto; }
+  .report-table, .report-chart, .report-highlight-grid { display: table !important; width: 100% !important; }
+  .report-chart { display: grid !important; }
+  .report-highlight-grid { display: grid !important; }
+  .report-table tr { break-inside: avoid; }
+  .match-report-card { break-inside: avoid; }
+  @page { size: A4 portrait; margin: 12mm; }
+}
 @media (min-width: 801px) and (max-width: 1100px) {
   .match-row { grid-template-columns: 76px 100px minmax(0, 1fr) 92px 30px; gap: 9px; }
   .match-time strong { font-size: 19px; }
@@ -222,6 +326,16 @@ button { cursor: pointer; }
 @media (max-width: 800px) {
   .regulation-copy { columns: 1; }
   .public-regulation .section-heading { display: flex; align-items: flex-start; flex-direction: column; gap: 15px; }
+  .sports-section .section-heading { display: flex; align-items: flex-start; flex-direction: column; gap: 15px; }
+  .sports-grid { grid-template-columns: 1fr; gap: 14px; }
+  .sport-card-heading { min-height: 0; padding: 25px 22px; }
+  .sport-card-heading > strong { margin-top: 17px; }
+  .sport-details { padding: 5px 22px 12px; }
+  .sport-details > div { grid-template-columns: 1fr; gap: 6px; }
+  .previous-tournaments .section-heading { display: flex; align-items: flex-start; flex-direction: column; gap: 15px; }
+  .previous-tournament-card { grid-template-columns: 1fr; }
+  .previous-tournament-card > img { min-height: 0; height: 300px; }
+  .previous-tournament-content { padding: 28px 22px; }
   .admin-console-backdrop { padding: 8px; }
   .admin-console { max-height: 96vh; }
   .admin-console-header { align-items: flex-start; padding: 25px 20px 20px; }
