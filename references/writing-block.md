@@ -1,4 +1,6 @@
-# SÚMULA OFICIAL — VÔLEI DE AREIA 4x4
+# SÚMULA OFICIAL — VÔLEI DE AREIA 40+ 4x4
+
+**Formato oficial:** melhor de 3 sets. Todos os sets são disputados até 15 pontos; cada set termina quando uma equipe alcança primeiro 15 pontos.
 
 ## 1. IDENTIFICAÇÃO DA PARTIDA
 
@@ -19,7 +21,7 @@
 
 ## 3. CONTROLE OFICIAL DOS SETS
 
-| SET | EQUIPE A | EQUIPE B | VENCEDOR | INÍCIO | TÉRMINO | DURAÇÃO |
+| SET — LIMITE 15 PONTOS | EQUIPE A | EQUIPE B | VENCEDOR | INÍCIO | TÉRMINO | DURAÇÃO |
 |---|---:|---:|---|---|---|---|
 | 1º SET | | | | | | |
 | 2º SET | | | | | | |

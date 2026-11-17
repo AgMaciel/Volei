@@ -21,8 +21,7 @@
 
 Marcar uma opção antes do início do torneio:
 
-- [ ] **Opção A — 21/21/15:** melhor de 3 sets; 1º e 2º sets até 21 pontos; 3º set decisivo até 15 pontos.
-- [ ] **Opção B — 15/15/15:** melhor de 3 sets; os três sets até 15 pontos.
+- [x] **Opção oficial — 15/15/15:** melhor de 3 sets; os três sets até 15 pontos.
 
 **Diferença mínima de 2 pontos:** [ ] Sim  [ ] Não  
 **Limite de pontuação, se houver:** ______ pontos  
@@ -119,7 +118,7 @@ Sortear os números de 1 a 10 e registrar os pares. O sorteio também poderá de
 ## 1º SET
 
 **Hora de início:** ______:______  **Hora de término:** ______:______  
-**Limite:** [ ] 21 pontos  [ ] 15 pontos  **Vencedor:** [ ] L/A  [ ] R/B  
+**Limite:** [x] 15 pontos  **Vencedor:** [ ] L/A  [ ] R/B  
 **Troca de quadra:** [ ] Sim  [ ] Não  **Ponto da troca:** ______  
 **Placar na troca L:R:** ______ : ______
 
@@ -150,7 +149,7 @@ R/B: _______________________________________________________________________
 ## 2º SET
 
 **Hora de início:** ______:______  **Hora de término:** ______:______  
-**Limite:** [ ] 21 pontos  [ ] 15 pontos  **Vencedor:** [ ] L/A  [ ] R/B  
+**Limite:** [x] 15 pontos  **Vencedor:** [ ] L/A  [ ] R/B  
 **Troca de quadra:** [ ] Sim  [ ] Não  **Ponto da troca:** ______  
 **Placar na troca L:R:** ______ : ______
 
