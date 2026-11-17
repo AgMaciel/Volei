@@ -333,15 +333,19 @@ const hashPassword = async (password, salt) => {
 };
 
 const initialTeams40Plus = [
-  { name: "TIME A", color: "#1564f5", athletes: ["Fred", "Cícero", "Michele Alvarenga", "Andresa"] },
-  { name: "TIME B", color: "#ef4444", athletes: ["Flávio Batata", "Marcelo", "Aline Carneiro", "Andrea"] },
-  { name: "TIME C", color: "#22c55e", athletes: ["Anderson", "Tárcio", "Elisângela", "Fran"] },
-  { name: "TIME D", color: "#f59e0b", athletes: ["Regy", "Ricardo Carneiro", "Lucilainy", "Michele Caldrone"] },
-  { name: "TIME E", color: "#8b5cf6", athletes: ["André", "Janilson", "Marília", "Maíra"] },
-  { name: "TIME F", color: "#06b6d4", athletes: ["Alessandro", "William", "Aline", "Márcia"] },
-  { name: "TIME G", color: "#ec4899", athletes: ["Agis", "Kátia", "Gil", "Ana Paula"] },
-  { name: "TIME H", color: "#111827", athletes: ["Heraldo", "Stela", "Elísio", "Roberta"] },
+  { name: "TIME A", color: "#ef4444", athletes: ["Fred", "Cícero", "Michele Alvarenga", "Andresa"] },
+  { name: "TIME B", color: "#2563eb", athletes: ["Flávio Batata", "Marcelo", "Aline Carneiro", "Andrea"] },
+  { name: "TIME C", color: "#f9a8d4", athletes: ["Anderson", "Tárcio", "Elisângela", "Fran"] },
+  { name: "TIME D", color: "#f97316", athletes: ["Regy", "Ricardo Carneiro", "Lucilainy", "Michele Caldrone"] },
+  { name: "TIME E", color: "#111827", athletes: ["André", "Janilson", "Marília", "Maíra"] },
+  { name: "TIME F", color: "#ff1493", athletes: ["Alessandro", "William", "Aline", "Márcia"] },
+  { name: "TIME G", color: "#ffffff", athletes: ["Agis", "Kátia", "Gil", "Ana Paula"] },
+  { name: "TIME H", color: "#7c3aed", athletes: ["Heraldo", "Stela", "Elísio", "Roberta"] },
 ];
+
+const officialTeamColors = Object.fromEntries(
+  initialTeams40Plus.map((team) => [team.name, team.color]),
+);
 
 const initialRegulation = `1º CAMPEONATO • QUARTETOS MISTOS • VÔLEI DE AREIA 40+
 Condomínio Aldeia da Serra • início às 8h • todos os atletas presentes às 8h
@@ -665,6 +669,9 @@ function App() {
         const savedTeams = (storedTeams.length === 8 ? storedTeams : initialTeams40Plus).map((team) => ({
           ...team,
           ...(team.name.toUpperCase() === "MARROM" ? { name: "Marrom / Azul-marinho" } : {}),
+          ...(officialTeamColors[team.name.toUpperCase()] ? {
+            color: officialTeamColors[team.name.toUpperCase()],
+          } : {}),
           athletes: Array.isArray(team.athletes) ? team.athletes : [],
         }));
         const savedRecords = saved.matchRecords || [];
