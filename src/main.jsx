@@ -296,6 +296,8 @@ const initialUsers = [
 ];
 
 const passwordSecurityKey = "aldeia-serra-open-password-security-v1";
+const adminPasswordResetVersion = 1;
+const adminPasswordResetPassword = "Torneiovolei40+";
 
 const validateStrongPassword = (password) =>
   password.length >= 10
@@ -407,6 +409,7 @@ const emptyMatchSheet = {
 function App() {
   const storageKey = "aldeia-serra-open-tournament-v1";
   const hydratedRef = useRef(false);
+  const adminPasswordResetAppliedRef = useRef(false);
   const [slide, setSlide] = useState(0);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [adminOpen, setAdminOpen] = useState(false);
@@ -662,8 +665,33 @@ function App() {
   const visiblePosts = Array.from({ length: Math.min(3, posts.length) }, (_, offset) => posts[(galleryIndex + offset) % posts.length]);
 
   useEffect(() => {
-    try {
+    const hydrate = async () => {
+      try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+      const savedUsers = Array.isArray(saved?.users) && saved.users.length ? saved.users : initialUsers;
+      let restoredUsers = savedUsers.map((user) =>
+        user.id === "admin-inicial"
+          ? { ...user, mustChangePassword: user.password === "admin" || user.mustChangePassword }
+          : user,
+      );
+      if (saved?.adminPasswordResetVersion === adminPasswordResetVersion) {
+        adminPasswordResetAppliedRef.current = true;
+      } else {
+        restoredUsers = await Promise.all(restoredUsers.map(async (user) => {
+          if (user.role !== "admin") return user;
+          const securedPassword = await hashPassword(adminPasswordResetPassword);
+          return {
+            ...user,
+            password: undefined,
+            passwordHash: securedPassword.hash,
+            passwordSalt: securedPassword.salt,
+            passwordHistory: [securedPassword.hash],
+            mustChangePassword: true,
+          };
+        }));
+        adminPasswordResetAppliedRef.current = true;
+      }
+      setUsers(restoredUsers);
       if (saved) {
         const storedTeams = Array.isArray(saved.registeredTeams) ? saved.registeredTeams : [];
         const savedTeams = (storedTeams.length === 8 ? storedTeams : initialTeams40Plus).map((team) => ({
@@ -736,11 +764,6 @@ function App() {
             image: legacyGalleryImages.get(post.image) || post.image,
           })));
         }
-        if (saved.users?.length) setUsers(saved.users.map((user) =>
-          user.id === "admin-inicial"
-            ? { ...user, mustChangePassword: user.password === "admin" || user.mustChangePassword }
-            : user,
-        ));
         if (saved.regulation && !/set único|Melhor de 3 sets.*21|grupos sorteados|melhores perdedores|repescagem/i.test(saved.regulation)) setRegulation(saved.regulation);
         if (saved.matchSheets) setMatchSheets(saved.matchSheets);
         if (saved.scoringRule) {
@@ -748,12 +771,15 @@ function App() {
           setDraftScoringRule(saved.scoringRule);
         }
       }
-    } catch (error) {
-      console.warn("Não foi possível restaurar a súmula salva.", error);
-    } finally {
-      hydratedRef.current = true;
-      setIsHydrated(true);
-    }
+      } catch (error) {
+        console.warn("Não foi possível restaurar a súmula salva.", error);
+        setLoginError("Não foi possível aplicar a atualização de acesso. Recarregue a página e tente novamente.");
+      } finally {
+        hydratedRef.current = true;
+        setIsHydrated(true);
+      }
+    };
+    void hydrate();
   }, []);
 
   useEffect(() => {
@@ -764,6 +790,7 @@ function App() {
       timeoutsUsed, timeoutLog, pausedDurationMs, pauseStartedAt, matchStarted, matchStartedAt, matchFinishedAt,
       posts,
       registeredTeams, users, regulation, matchSheets,
+      ...(adminPasswordResetAppliedRef.current ? { adminPasswordResetVersion } : {}),
       schedulePublished,
       activeMatch, serveAdvantage, rallies, scheduledMatches,
       activeFixtureKey, selectedFixtureKey, scoringRule,
